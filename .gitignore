@@ -3,4 +3,4 @@ obj/
 .vs/
 publicar/
 *.user
-capturas/
+/capturas/
