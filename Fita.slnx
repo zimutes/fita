@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Fita/Fita.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Fita.Tests/Fita.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Capturas/Capturas.csproj" />
+  </Folder>
+</Solution>

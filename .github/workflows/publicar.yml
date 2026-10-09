@@ -1,0 +1,135 @@
+# Compila e publica os executáveis de uma versão.
+#
+# Dispara numa etiqueta "v*" (git tag v1.0.0 && git push origin v1.0.0), ou à mão pelo
+# separador Actions. Os binários nunca entram no repositório: são construídos aqui e
+# anexados à release.
+
+name: Publicar versão
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      etiqueta:
+        description: "Etiqueta a publicar (ex.: v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  ETIQUETA: ${{ github.event.inputs.etiqueta || github.ref_name }}
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      # Só etiquetas de versão (vX.Y.Z): nada de ramos, SHAs ou texto que chegue ao MSBuild.
+      - name: Validar a etiqueta
+        shell: pwsh
+        run: |
+          if ($env:ETIQUETA -notmatch '^v\d+\.\d+\.\d+$') { Write-Error "Etiqueta inválida: $env:ETIQUETA"; exit 1 }
+
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.ETIQUETA }}
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      # Duas versões: uma pequena, que usa o .NET 10 instalado, e uma autónoma.
+      - name: Compilar
+        shell: pwsh
+        run: |
+          $versao = $env:ETIQUETA.TrimStart('v')
+          $comum = @('src/Fita', '-c', 'Release', '-r', 'win-x64', '-p:PublishSingleFile=true',
+                     '-p:IncludeNativeLibrariesForSelfExtract=true', '-p:DebugType=none', "-p:Version=$versao")
+          dotnet publish @comum --no-self-contained -o saida/leve
+          dotnet publish @comum --self-contained -p:EnableCompressionInSingleFile=true -o saida/autonomo
+
+      - name: Empacotar
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory recolha | Out-Null
+          Copy-Item saida/leve/Fita.exe recolha/Fita.exe
+          Compress-Archive -Path saida/autonomo/Fita.exe -DestinationPath recolha/Fita-autonomo-win-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: recolha/*
+
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        alvo: [linux-x64, linux-arm64]
+    steps:
+      - name: Validar a etiqueta
+        run: |
+          echo "$ETIQUETA" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Etiqueta inválida: $ETIQUETA"; exit 1; }
+
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.ETIQUETA }}
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Compilar
+        run: >
+          dotnet publish src/Fita -c Release -r ${{ matrix.alvo }} --self-contained
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none
+          -p:Version=${ETIQUETA#v} -o saida/fita
+
+      # O pacote leva o executável, o ícone e o instalar.sh (que instala o que vem ao lado).
+      - name: Empacotar
+        run: |
+          cp src/Fita/Assets/fita.png tools/instalar.sh saida/fita/
+          chmod +x saida/fita/Fita saida/fita/instalar.sh
+          mkdir recolha
+          tar -czf recolha/Fita-${{ matrix.alvo }}.tar.gz -C saida fita
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.alvo }}
+          path: recolha/*
+
+  release:
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: recolha
+          merge-multiple: true
+
+      - name: Somas de verificação
+        run: |
+          cd recolha
+          sha256sum * > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Criar a release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > notas.md <<'EOF'
+          Needs [ffmpeg](https://ffmpeg.org): `winget install Gyan.FFmpeg` on Windows, `sudo apt install ffmpeg` on Debian/Ubuntu.
+
+          **Fita.exe**: Windows 10/11 x64, needs the [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
+          **Fita-autonomo-win-x64.zip**: self-contained, no .NET needed.
+          **Fita-linux-x64.tar.gz / linux-arm64**: self-contained. Extract and run `./fita/instalar.sh`.
+
+          Unsigned: Windows SmartScreen may ask first (*More info → Run anyway*). Checksums in `SHA256SUMS`.
+          EOF
+          gh release create "$ETIQUETA" recolha/* --verify-tag \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Fita $ETIQUETA" \
+            --notes-file notas.md \
+            --generate-notes

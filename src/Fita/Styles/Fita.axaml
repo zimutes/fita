@@ -1,0 +1,300 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="using:Fita.Controls">
+
+  <!-- Painéis e mostrador -->
+  <Style Selector="Border.panel">
+    <Setter Property="Background" Value="{DynamicResource PanelBg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource PanelRadius}" />
+    <Setter Property="BoxShadow" Value="{DynamicResource PanelShadow}" />
+  </Style>
+  <Style Selector="Border.inset">
+    <Setter Property="Background" Value="{DynamicResource InsetBg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource InsetBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource InsetRadius}" />
+    <Setter Property="BoxShadow" Value="{DynamicResource InsetShadow}" />
+  </Style>
+  <Style Selector="Border.list">
+    <Setter Property="Background" Value="{DynamicResource ListBg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ListBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource ListRadius}" />
+    <Setter Property="BoxShadow" Value="{DynamicResource ListShadow}" />
+  </Style>
+
+  <Style Selector="TextBlock.lcd">
+    <Setter Property="Foreground" Value="{DynamicResource Lcd}" />
+    <Setter Property="FontFamily" Value="{DynamicResource FontMono}" />
+  </Style>
+  <Style Selector="TextBlock.label">
+    <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+    <Setter Property="FontFamily" Value="{DynamicResource BtnFont}" />
+    <Setter Property="FontWeight" Value="{DynamicResource BtnWeight}" />
+    <Setter Property="FontSize" Value="10.5" />
+    <Setter Property="LetterSpacing" Value="{DynamicResource BtnSpacing}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+  </Style>
+  <Style Selector="TextBlock.indicator">
+    <Setter Property="FontFamily" Value="{DynamicResource FontMono}" />
+    <Setter Property="FontSize" Value="9.5" />
+    <Setter Property="Foreground" Value="{DynamicResource LcdDim}" />
+    <Setter Property="Opacity" Value="0.35" />
+  </Style>
+  <Style Selector="TextBlock.indicator.on">
+    <Setter Property="Foreground" Value="{DynamicResource Lcd}" />
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="TextBlock.indicator.alert.on">
+    <Setter Property="Foreground" Value="{DynamicResource Brand}" />
+  </Style>
+
+  <!-- Espaçamento das letras nos botões (os temas com maiúsculas pedem-no) -->
+  <Style Selector="Button /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="TextElement.FontFamily" Value="{DynamicResource BtnFont}" />
+  </Style>
+  <Style Selector="Button TextBlock, ToggleButton TextBlock">
+    <Setter Property="LetterSpacing" Value="{DynamicResource BtnSpacing}" />
+  </Style>
+
+  <!-- Botões de transporte: quadrados, só com ícone -->
+  <Style Selector="Button.transport">
+    <Setter Property="Width" Value="36" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+  </Style>
+  <Style Selector="Button.transport ctl|Glyph">
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
+  </Style>
+  <Style Selector="Button.play">
+    <Setter Property="Background" Value="{DynamicResource PlayBg}" />
+    <Setter Property="Foreground" Value="{DynamicResource PlayFg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PlayBg}" />
+    <Setter Property="Width" Value="44" />
+  </Style>
+  <Style Selector="Button.play /template/ Border#PART_Border">
+    <Setter Property="BoxShadow" Value="{DynamicResource PlayShadow}" />
+  </Style>
+  <Style Selector="Button.play:pointerover">
+    <Setter Property="Background" Value="{DynamicResource PlayBg}" />
+    <Setter Property="Foreground" Value="{DynamicResource PlayFg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PlayBg}" />
+    <Setter Property="Opacity" Value="0.9" />
+  </Style>
+  <Style Selector="Button.play:pressed /template/ Border#PART_Border">
+    <Setter Property="BoxShadow" Value="{DynamicResource BtnShadowPressed}" />
+  </Style>
+
+  <!-- Temas com relevo: premir afunda o conteúdo 1 px (Windows 95) -->
+  <Style Selector="Window.sink Button:pressed /template/ ContentPresenter#PART_ContentPresenter, Window.sink ToggleButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="RenderTransform" Value="translate(1px, 1px)" />
+  </Style>
+  <!-- Oceanic: o botão sobe um pouco ao passar por cima -->
+  <Style Selector="Window.lift Button:pointerover, Window.lift ToggleButton:pointerover">
+    <Setter Property="RenderTransform" Value="translate(0px, -1px)" />
+  </Style>
+  <Style Selector="Window.motion Button, Window.motion ToggleButton">
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <!-- Barra de título -->
+  <Style Selector="Button.chrome">
+    <Setter Property="Width" Value="30" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource TitleFg}" />
+    <Setter Property="Opacity" Value="0.8" />
+  </Style>
+  <Style Selector="Button.chrome /template/ Border#PART_Border">
+    <Setter Property="BoxShadow" Value="none" />
+  </Style>
+  <Style Selector="Button.chrome:pointerover">
+    <Setter Property="Background" Value="{DynamicResource BtnBgHover}" />
+    <Setter Property="Foreground" Value="{DynamicResource TitleFg}" />
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button.chrome:pointerover /template/ Border#PART_Border">
+    <Setter Property="BoxShadow" Value="none" />
+  </Style>
+  <Style Selector="Button.chrome.close:pointerover">
+    <Setter Property="Background" Value="#E81123" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.chrome ctl|Glyph">
+    <Setter Property="Width" Value="12" />
+    <Setter Property="Height" Value="12" />
+  </Style>
+  <!-- No 1995 os botões da barra azul são caixas cinzentas em relevo -->
+  <Style Selector="Window.bevel Button.chrome">
+    <Setter Property="Background" Value="#C0C0C0" />
+    <Setter Property="Foreground" Value="Black" />
+    <Setter Property="Width" Value="18" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="Margin" Value="2,0,0,0" />
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Window.bevel Button.chrome /template/ Border#PART_Border">
+    <Setter Property="BoxShadow" Value="{DynamicResource BtnShadow}" />
+  </Style>
+  <Style Selector="Window.bevel Button.chrome:pointerover">
+    <Setter Property="Background" Value="#C0C0C0" />
+    <Setter Property="Foreground" Value="Black" />
+  </Style>
+  <Style Selector="Window.bevel Button.chrome:pointerover /template/ Border#PART_Border">
+    <Setter Property="BoxShadow" Value="{DynamicResource BtnShadow}" />
+  </Style>
+  <Style Selector="Window.bevel Button.chrome:pressed /template/ Border#PART_Border">
+    <Setter Property="BoxShadow" Value="{DynamicResource BtnShadowPressed}" />
+  </Style>
+  <Style Selector="Window.bevel Button.chrome ctl|Glyph">
+    <Setter Property="Width" Value="9" />
+    <Setter Property="Height" Value="9" />
+  </Style>
+
+  <!-- Botões pequenos (EQ, lista) -->
+  <Style Selector="Button.small, ToggleButton.small">
+    <Setter Property="MinHeight" Value="24" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="Padding" Value="9,0" />
+  </Style>
+
+  <!-- Campo de procura -->
+  <Style Selector="TextBox.search">
+    <Setter Property="CornerRadius" Value="{DynamicResource InputRadius}" />
+    <Setter Property="MinHeight" Value="28" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Padding" Value="12,5,12,4" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBox.search /template/ Border#PART_BorderElement">
+    <Setter Property="BoxShadow" Value="{DynamicResource InputShadow}" />
+  </Style>
+  <Style Selector="TextBox.search:focus /template/ Border#PART_BorderElement">
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <!-- Caixas de valor (volume, balanço, EQ): pequenas, centradas, em letra de máquina -->
+  <Style Selector="TextBox.value">
+    <Setter Property="Width" Value="42" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="Padding" Value="2,0" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontFamily" Value="{DynamicResource FontMono}" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="CornerRadius" Value="{DynamicResource ValueRadius}" />
+  </Style>
+  <Style Selector="TextBox.value /template/ Border#PART_BorderElement">
+    <Setter Property="BoxShadow" Value="{DynamicResource InputShadow}" />
+  </Style>
+  <Style Selector="TextBox.value.band">
+    <Setter Property="Width" Value="36" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="FontSize" Value="10" />
+  </Style>
+
+  <!-- Lista de reprodução -->
+  <Style Selector="ListBox.playlist">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="0,2" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem">
+    <Setter Property="Padding" Value="6,0,10,0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="Foreground" Value="{DynamicResource Text}" />
+    <Setter Property="FontSize" Value="12.5" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource RowHover}" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource RowHover}" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectionBg}" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectionBg}" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectionBg}" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectionBg}" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:selected">
+    <Setter Property="Foreground" Value="{DynamicResource SelectionFg}" />
+  </Style>
+  <Style Selector="ListBox.playlist ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="{DynamicResource SelectionFg}" />
+  </Style>
+  <Style Selector="Grid.row TextBlock.num, Grid.row TextBlock.dur">
+    <Setter Property="FontFamily" Value="{DynamicResource FontMono}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Opacity" Value="0.55" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Grid.row.current TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource CurrentFg}" />
+  </Style>
+  <Style Selector="Grid.row.current TextBlock.title">
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector="Grid.row.current TextBlock.num, Grid.row.current TextBlock.dur">
+    <Setter Property="Opacity" Value="0.9" />
+  </Style>
+  <Style Selector="ListBoxItem:selected Grid.row.current TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource SelectionFg}" />
+  </Style>
+  <Style Selector="Grid.row.failed TextBlock">
+    <Setter Property="TextDecorations" Value="Strikethrough" />
+    <Setter Property="Opacity" Value="0.45" />
+  </Style>
+
+  <!-- Menus -->
+  <Style Selector="MenuFlyoutPresenter, ContextMenu">
+    <Setter Property="FontFamily" Value="{DynamicResource FontSans}" />
+    <Setter Property="FontSize" Value="12.5" />
+  </Style>
+  <Style Selector="MenuItem">
+    <Setter Property="FontFamily" Value="{DynamicResource FontSans}" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="10,5" />
+  </Style>
+  <Style Selector="FlyoutPresenter">
+    <Setter Property="Background" Value="{DynamicResource MenuBg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MenuBorder}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource MenuRadius}" />
+    <Setter Property="Padding" Value="16,14" />
+    <Setter Property="FontFamily" Value="{DynamicResource FontSans}" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Foreground" Value="{DynamicResource Text}" />
+  </Style>
+  <Style Selector="NumericUpDown">
+    <Setter Property="CornerRadius" Value="{DynamicResource InputRadius}" />
+  </Style>
+  <Style Selector="ToolTip">
+    <Setter Property="FontFamily" Value="{DynamicResource FontSans}" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+</Styles>

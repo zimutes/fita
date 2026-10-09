@@ -1,0 +1,205 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="using:Fita.Controls"
+        xmlns:lib="using:Fita.Library"
+        x:Class="Fita.Views.MainWindow"
+        Title="Fita"
+        Icon="avares://Fita/Assets/fita.ico"
+        Width="500" MinWidth="440" MaxWidth="1400"
+        Background="Transparent"
+        FontFamily="{DynamicResource FontSans}"
+        Foreground="{DynamicResource Text}"
+        FontSize="13"
+        DragDrop.AllowDrop="True">
+
+  <Panel>
+    <ctl:Backdrop />
+
+    <DockPanel Name="Root">
+
+      <!-- ── Barra de título ─────────────────────────────────────────────── -->
+      <Border Name="TitleBar" DockPanel.Dock="Top" Height="34" Background="{DynamicResource TitleBg}" Padding="12,0,6,0">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <StackPanel Name="Brand" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <ctl:Glyph Kind="Logo" Width="15" Height="15" Foreground="{DynamicResource Accent}" Name="LogoGlyph" />
+            <TextBlock Name="TitleText" Text="FITA" FontFamily="{DynamicResource FontDisplay}"
+                       FontWeight="{DynamicResource TitleWeight}" LetterSpacing="{DynamicResource TitleSpacing}"
+                       FontSize="13.5" Foreground="{DynamicResource TitleFg}" VerticalAlignment="Center" />
+            <TextBlock Name="ByText" Text="{DynamicResource L.By}" FontSize="10.5" Opacity="0.6"
+                       Foreground="{DynamicResource TitleFg}" VerticalAlignment="Center" Margin="0,2,0,0" />
+          </StackPanel>
+
+          <!-- Modo compacto: o leitor inteiro numa linha -->
+          <Grid Name="MiniBar" Grid.Column="1" IsVisible="False" ColumnDefinitions="Auto,Auto,*,Auto" Margin="10,0,6,0">
+            <ctl:Glyph Name="MiniState" Kind="Stop" Width="9" Height="9" Foreground="{DynamicResource Lcd}" VerticalAlignment="Center" />
+            <TextBlock Name="MiniTime" Grid.Column="1" Classes="lcd" FontSize="13" Margin="7,0,10,0" VerticalAlignment="Center"
+                       FontFamily="{DynamicResource FontTime}" FontWeight="{DynamicResource TimeWeight}" Text="00:00" />
+            <ctl:Marquee Name="MiniMarquee" Grid.Column="2" FontSize="12" Foreground="{DynamicResource TitleFg}" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="2" Margin="8,0,0,0">
+              <Button Name="MiniPrev" Classes="chrome" ToolTip.Tip="{DynamicResource L.PrevTip}"><ctl:Glyph Kind="Prev" /></Button>
+              <Button Name="MiniPlay" Classes="chrome" ToolTip.Tip="{DynamicResource L.PlayTip}"><ctl:Glyph Name="MiniPlayGlyph" Kind="Play" /></Button>
+              <Button Name="MiniNext" Classes="chrome" ToolTip.Tip="{DynamicResource L.NextTip}"><ctl:Glyph Kind="Next" /></Button>
+            </StackPanel>
+          </Grid>
+
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+            <Button Name="MenuButton" Classes="chrome" ToolTip.Tip="{DynamicResource L.Menu}"><ctl:Glyph Kind="Menu" /></Button>
+            <Button Name="CompactButton" Classes="chrome" ToolTip.Tip="{DynamicResource L.CompactTip}"><ctl:Glyph Kind="Compact" /></Button>
+            <Button Name="MinimizeButton" Classes="chrome" ToolTip.Tip="{DynamicResource L.Minimize}"><ctl:Glyph Kind="Minimize" /></Button>
+            <Button Name="CloseButton" Classes="chrome close" ToolTip.Tip="{DynamicResource L.Close}"><ctl:Glyph Kind="Close" /></Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- ── Leitor e equalizador ────────────────────────────────────────── -->
+      <StackPanel Name="Body" DockPanel.Dock="Top" Spacing="8" Margin="10,6,10,0">
+
+        <Border Name="MainPanel" Classes="panel" Padding="10">
+          <StackPanel Spacing="8">
+
+            <!-- Mostrador -->
+            <Border Name="Lcd" Classes="inset" Height="102" Padding="12,8,12,8" Background="{DynamicResource InsetBg}">
+              <Grid ColumnDefinitions="152,14,*" RowDefinitions="Auto,*">
+                <StackPanel Orientation="Horizontal" Spacing="9" Name="TimeArea" Background="Transparent"
+                            ToolTip.Tip="{DynamicResource L.TimeTip}" Cursor="Hand">
+                  <ctl:Glyph Name="StateGlyph" Kind="Stop" Width="11" Height="11" Foreground="{DynamicResource Lcd}"
+                             VerticalAlignment="Center" Effect="{DynamicResource LcdEffect}" />
+                  <TextBlock Name="TimeText" Text="00:00" Foreground="{DynamicResource Lcd}"
+                             FontFamily="{DynamicResource FontTime}" FontWeight="{DynamicResource TimeWeight}"
+                             FontSize="{DynamicResource TimeSize}" VerticalAlignment="Center"
+                             Effect="{DynamicResource LcdEffect}" />
+                </StackPanel>
+                <ctl:Visualizer Name="Vis" Grid.Row="1" Margin="0,6,0,0" Cursor="Hand" ToolTip.Tip="{DynamicResource L.VisTip}" />
+
+                <Grid Grid.Column="2" Grid.RowSpan="2" RowDefinitions="Auto,Auto,*,Auto">
+                  <ctl:Marquee Name="TitleMarquee" Height="22" FontSize="15" FontWeight="SemiBold"
+                               FontFamily="{DynamicResource FontSans}" Foreground="{DynamicResource Lcd}"
+                               Effect="{DynamicResource LcdEffect}" />
+                  <TextBlock Name="InfoText" Grid.Row="1" Classes="lcd" FontSize="10.5" Foreground="{DynamicResource LcdDim}"
+                             TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                  <TextBlock Name="StatusText" Grid.Row="2" Classes="lcd" FontSize="10.5" Foreground="{DynamicResource LcdDim}"
+                             TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Cursor="Hand" />
+                  <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10">
+                    <TextBlock Name="IndEq" Classes="indicator" Text="EQ" />
+                    <TextBlock Name="IndShuffle" Classes="indicator" Text="SHUF" />
+                    <TextBlock Name="IndRepeat" Classes="indicator" Text="REP" />
+                    <TextBlock Name="IndRg" Classes="indicator" Text="RG" />
+                    <TextBlock Name="IndStopAfter" Classes="indicator alert" Text="STOP" />
+                    <TextBlock Name="IndLimit" Classes="indicator alert" Text="{DynamicResource L.Limit}" ToolTip.Tip="{DynamicResource L.LimitTip}" />
+                  </StackPanel>
+                </Grid>
+              </Grid>
+            </Border>
+
+            <!-- Posição -->
+            <ctl:LevelSlider Name="Seek" IsSeekBar="True" Height="18" Maximum="1" ToolTip.Tip="{DynamicResource L.SeekTip}" />
+
+            <!-- Transporte e modos -->
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <Button Name="PrevButton" Classes="transport" ToolTip.Tip="{DynamicResource L.PrevTip}"><ctl:Glyph Kind="Prev" /></Button>
+                <Button Name="PlayButton" Classes="transport play" ToolTip.Tip="{DynamicResource L.PlayTip}"><ctl:Glyph Kind="Play" /></Button>
+                <Button Name="PauseButton" Classes="transport" ToolTip.Tip="{DynamicResource L.PauseTip}"><ctl:Glyph Kind="Pause" /></Button>
+                <Button Name="StopButton" Classes="transport" ToolTip.Tip="{DynamicResource L.StopTip}"><ctl:Glyph Kind="Stop" /></Button>
+                <Button Name="NextButton" Classes="transport" ToolTip.Tip="{DynamicResource L.NextTip}"><ctl:Glyph Kind="Next" /></Button>
+                <Button Name="OpenButton" Classes="transport" Margin="6,0,0,0" Width="32" ToolTip.Tip="{DynamicResource L.OpenTip}"><ctl:Glyph Kind="Eject" /></Button>
+              </StackPanel>
+              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <ToggleButton Name="ShuffleToggle" Classes="small" Content="{DynamicResource LU.Shuffle}" ToolTip.Tip="{DynamicResource L.ShuffleTip}" />
+                <ToggleButton Name="RepeatToggle" Classes="small" Content="{DynamicResource LU.Repeat}" ToolTip.Tip="{DynamicResource L.RepeatTip}" />
+              </StackPanel>
+            </Grid>
+
+            <!-- Volume, balanço, painéis -->
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto,76,Auto,Auto" ColumnSpacing="6">
+              <TextBlock Classes="label" Text="{DynamicResource LU.Vol}" />
+              <ctl:LevelSlider Name="Volume" Grid.Column="1" Height="20" Maximum="100" WheelStep="4" ToolTip.Tip="{DynamicResource L.VolTip}" />
+              <ctl:ValueBox Name="VolumeBox" Grid.Column="2" ToolTip.Tip="{DynamicResource L.ValueTip}" />
+              <TextBlock Grid.Column="3" Classes="label" Text="{DynamicResource LU.Bal}" Margin="6,0,0,0" />
+              <ctl:LevelSlider Name="Balance" Grid.Column="4" Height="20" Minimum="-1" Maximum="1" Origin="0" DefaultValue="0"
+                               WheelStep="0.1" ToolTip.Tip="{DynamicResource L.BalTip}" />
+              <ctl:ValueBox Name="BalanceBox" Grid.Column="5" ToolTip.Tip="{DynamicResource L.BalValueTip}" />
+              <StackPanel Grid.Column="6" Orientation="Horizontal" Spacing="4" Margin="4,0,0,0">
+                <ToggleButton Name="EqToggle" Classes="small" Content="{DynamicResource LU.EqToggle}" ToolTip.Tip="{DynamicResource L.EqToggleTip}" />
+                <ToggleButton Name="PlToggle" Classes="small" Content="{DynamicResource LU.PlToggle}" ToolTip.Tip="{DynamicResource L.PlToggleTip}" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- ── Equalizador ──────────────────────────────────────────────── -->
+        <Border Name="EqPanel" Classes="panel" Padding="10">
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto" ColumnSpacing="4">
+              <ToggleButton Name="EqOn" Classes="small" Content="{DynamicResource LU.EqOn}" ToolTip.Tip="{DynamicResource L.EqOnTip}" />
+              <ToggleButton Name="EqAuto" Grid.Column="1" Classes="small" Content="{DynamicResource LU.Auto}" ToolTip.Tip="{DynamicResource L.AutoTip}" />
+              <TextBlock Name="PreampInfo" Grid.Column="2" Classes="muted" FontFamily="{DynamicResource FontMono}" FontSize="10.5"
+                         VerticalAlignment="Center" Margin="8,0" TextTrimming="CharacterEllipsis" />
+              <Button Name="PresetButton" Grid.Column="3" Classes="small" Content="{DynamicResource LU.Presets}" />
+              <Button Name="SavePresetButton" Grid.Column="4" Classes="small" Content="{DynamicResource LU.SavePreset}" />
+              <Button Name="ResetEqButton" Grid.Column="5" Classes="small" Content="{DynamicResource LU.ResetEq}" />
+            </Grid>
+
+            <Border Classes="inset" Height="96" Padding="2" ClipToBounds="True">
+              <ctl:EqGraph Name="Graph" ToolTip.Tip="{DynamicResource L.EqHint}" />
+            </Border>
+
+            <Grid Name="BandGrid" Height="116" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- ── Lista de reprodução ─────────────────────────────────────────── -->
+      <Border Name="PlPanel" Classes="panel" Margin="10,8,10,10" Padding="10">
+        <DockPanel>
+          <TextBox Name="SearchBox" DockPanel.Dock="Top" Classes="search" Watermark="{DynamicResource L.Search}" Margin="0,0,0,8" />
+          <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="4" Margin="0,8,0,0">
+            <Button Name="AddButton" Classes="small" Content="{DynamicResource LU.Add}" />
+            <Button Name="RemoveButton" Grid.Column="1" Classes="small" Content="{DynamicResource LU.Remove}" />
+            <Button Name="SortButton" Grid.Column="2" Classes="small" Content="{DynamicResource LU.Sort}" />
+            <Button Name="ListButton" Grid.Column="3" Classes="small" Content="{DynamicResource LU.List}" />
+            <TextBlock Name="FooterText" Grid.Column="4" Classes="muted" FontFamily="{DynamicResource FontMono}" FontSize="10.5"
+                       HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="8,0" />
+            <Border Name="ResizeGrip" Grid.Column="5" Width="16" Height="16" Background="Transparent" Cursor="BottomRightCorner"
+                    VerticalAlignment="Bottom" Margin="0,0,-4,-4">
+              <ctl:Glyph Kind="Grip" Foreground="{DynamicResource TextMuted}" />
+            </Border>
+          </Grid>
+          <Border Classes="list" ClipToBounds="True">
+            <Panel>
+              <ListBox Name="PlaylistBox" Classes="playlist" SelectionMode="Multiple" DragDrop.AllowDrop="True">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="lib:Track">
+                    <Grid Classes="row" Classes.current="{Binding IsCurrent}" Classes.failed="{Binding Failed}"
+                          ColumnDefinitions="38,*,Auto" Background="Transparent">
+                      <TextBlock Classes="num" Text="{Binding Number}" HorizontalAlignment="Right" Margin="0,0,10,0" />
+                      <TextBlock Grid.Column="1" Classes="title" Text="{Binding Display}" TextTrimming="CharacterEllipsis"
+                                 VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2" Classes="dur" Text="{Binding DurationText}" Margin="10,0,0,0" />
+                      <Border Grid.ColumnSpan="3" Height="2" VerticalAlignment="Top" Margin="0,-1,0,0"
+                              Background="{DynamicResource Accent}" IsVisible="{Binding DropTarget}" />
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <StackPanel Name="EmptyHint" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6" Margin="20" IsHitTestVisible="False">
+                <TextBlock Name="EmptyTitle" Text="{DynamicResource L.DropTitle}" FontFamily="{DynamicResource FontDisplay}"
+                           FontSize="18" HorizontalAlignment="Center" Foreground="{DynamicResource TextDim}" />
+                <TextBlock Name="EmptyBody" Text="{DynamicResource L.DropFormats}" Classes="muted" FontSize="11.5"
+                           TextWrapping="Wrap" TextAlignment="Center" MaxWidth="340" />
+              </StackPanel>
+            </Panel>
+          </Border>
+        </DockPanel>
+      </Border>
+    </DockPanel>
+
+    <!-- ── Camada por cima (sobre, ffmpeg em falta, atalhos, informação) ─── -->
+    <Border Name="Overlay" IsVisible="False" Background="#99000000" Padding="22">
+      <Border Classes="panel" Name="OverlayCard" Background="{DynamicResource MenuBg}" BorderBrush="{DynamicResource MenuBorder}"
+              VerticalAlignment="Center" MaxWidth="460" Padding="20">
+        <ContentControl Name="OverlayContent" />
+      </Border>
+    </Border>
+  </Panel>
+</Window>

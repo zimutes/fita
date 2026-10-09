@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Fita</AssemblyName>
+    <RootNamespace>Fita</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\fita.ico</ApplicationIcon>
+
+    <Version>1.0.0</Version>
+    <Product>Fita</Product>
+    <Company>zimutek</Company>
+    <Authors>zimutek</Authors>
+    <Copyright>© zimutek</Copyright>
+    <Description>A music player for Windows and Linux, in the spirit of the classic Winamp.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <!-- Só as bibliotecas nativas do OpenAL Soft (soft_oal.dll / libopenal.so); a ligação é nossa (Audio/OpenAl.cs). -->
+    <PackageReference Include="Silk.NET.OpenAL.Soft.Native" Version="1.23.1" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fita.Tests" />
+  </ItemGroup>
+
+</Project>

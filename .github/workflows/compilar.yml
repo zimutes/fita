@@ -1,0 +1,31 @@
+# Confirma que o projeto compila e que os testes passam, em Windows e em Linux, em cada push
+# e em cada pull request.
+
+name: Compilar
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  compilar:
+    strategy:
+      matrix:
+        sistema: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.sistema }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Compilar
+        run: dotnet build Fita.slnx -c Release -warnaserror
+
+      - name: Testes
+        run: dotnet test tests/Fita.Tests -c Release --no-build
