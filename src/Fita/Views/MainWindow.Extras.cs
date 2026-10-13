@@ -87,7 +87,7 @@ public partial class MainWindow
     {
         _sleepChoice = minutes;
         _sleepAt = minutes is { } m ? Environment.TickCount64 + m * 60_000L : null;
-        _engine.Volume = VolumeGain(_settings.Volume);
+        _engine.Volume = OutputGain;
         ShowTrackText();
         ShowStatus(minutes is { } min ? Loc.F("SleepIn", min) : Loc.T("SleepOff"));
     }
@@ -103,13 +103,13 @@ public partial class MainWindow
             Stop();
             _sleepAt = null;
             _sleepChoice = null;
-            _engine.Volume = VolumeGain(_settings.Volume);
+            _engine.Volume = OutputGain;
             ShowTrackText();
             ShowStatus(Loc.T("SleepDone"));
             return;
         }
         if (left < SleepFadeSeconds)
-            _engine.Volume = VolumeGain(_settings.Volume) * (float)(left / SleepFadeSeconds);
+            _engine.Volume = OutputGain * (float)(left / SleepFadeSeconds);
         // O que falta, de minuto a minuto, na linha do formato.
         if (_blink % 20 == 0)
             ShowTrackText();

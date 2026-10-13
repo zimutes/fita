@@ -31,6 +31,34 @@ public enum VisLook
     Wave,
 }
 
+/// <summary>
+/// Como a forma de onda da barra de posição responde ao rato, à maneira do leitor do estufa.org:
+/// as barras debaixo do cursor sobem (a lupa) e cada movimento solta uma onda que corre para os
+/// dois lados e se apaga. Medidas em píxeis e segundos.
+/// </summary>
+public sealed record WaveRipple
+{
+    /// <summary>Quanto anda a onda por segundo.</summary>
+    public double Speed { get; init; } = 190;
+    /// <summary>Quão depressa se apaga (por segundo).</summary>
+    public double Decay { get; init; } = 2.2;
+    /// <summary>Largura da crista.</summary>
+    public double Width { get; init; } = 7;
+    /// <summary>Altura da crista, para lá da barra.</summary>
+    public double Lift { get; init; } = 12;
+    /// <summary>Quanto sobem as barras debaixo do rato, e em que largura.</summary>
+    public double Lens { get; init; } = 7;
+    public double LensWidth { get; init; } = 11;
+    /// <summary>Cristas por onda: 1 é um impulso só; mais é uma ondulação.</summary>
+    public int Crests { get; init; } = 1;
+    /// <summary>Quadros por segundo da onda (0: contínua). Os temas antigos andam aos solavancos.</summary>
+    public double Fps { get; init; }
+    /// <summary>Alturas aos degraus deste tamanho (0: contínuas).</summary>
+    public double Step { get; init; }
+    /// <summary>A cor para onde a crista puxa as barras.</summary>
+    public Color Crest { get; init; } = Colors.White;
+}
+
 /// <summary>Uma camada de luz do fundo: um gradiente radial em coordenadas relativas à janela.</summary>
 public sealed record GlowLayer(double X, double Y, double Radius, Color Color);
 
@@ -158,6 +186,7 @@ public sealed class ThemeDef
     public required Color GraphFill { get; init; }
     public required Color GraphGrid { get; init; }
     public required Color GraphSpectrum { get; init; }
+    public WaveRipple Ripple { get; init; } = new();
 
     /// <summary>Cantos da janela no Windows 11 (falso: cantos vivos).</summary>
     public bool RoundWindow { get; init; } = true;

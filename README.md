@@ -50,8 +50,9 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 - **Equalizer with real detail.** Ten bands (31 Hz to 16 kHz) with sliders, plus a graph of
   the actual response curve over the live spectrum. Drag a point to move its gain and
   frequency, scroll to change its width (Q), right-click for exact values and the band type:
-  bell, low/high shelf, low/high cut. Preamp, *Auto* preamp so boosts never clip, a limiter
-  as a safety net, 12 presets and your own.
+  bell, low/high shelf, low/high cut. Preamp, a limiter so boosts don't clip, an optional
+  *Auto* preamp (off by default: it lowers everything by the biggest boost), 12 presets and
+  your own.
 - **Every level has a box you can type in:** volume, balance (`L30`, `C`, `R30`), preamp and
   each band. Enter applies; empty + Enter or a double-click puts it back to default (volume 80,
   balance centre, 0 dB). Arrows and the mouse wheel move one step.
@@ -71,9 +72,11 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   accents or not. Fita keeps an eye on the folders and only re-reads files that changed.
 - **Classic display:** time (click for remaining), scrolling title, format line, spectrum or
   oscilloscope (click to switch), and the little status lights: EQ, shuffle, repeat,
-  ReplayGain, stop-after-current, limiter. The album art (from the file, or a `cover.jpg` /
+  ReplayGain, mute, stop-after-current, limiter. The album art (from the file, or a `cover.jpg` /
   `folder.jpg` next to it) sits faded behind the text, so the window doesn't grow, and the
-  seek bar draws the track's waveform, in the same height as a plain bar.
+  seek bar draws the track's waveform, in the same height as a plain bar. Hover it and the
+  bars rise and ripple, each theme in its own way; it takes a click anywhere near it.
+- **Mute in one go:** `M`, or click the *VOL* label. Moving the volume brings the sound back.
 - **Big visuals, MilkDrop style:** double-click the spectrum (or `Ctrl+Shift+K`, as in
   Winamp) and a separate window opens with a feedback visualizer written from scratch: each
   frame is the last one zoomed, turned, swirled and fading, with the music's wave drawn on
@@ -117,6 +120,7 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 | `Space` | Play / pause |
 | `←` `→` | Back / forward 5 s (`Ctrl`: 30 s) |
 | `↑` `↓` | Volume |
+| `M` | Mute / sound back |
 | `J` | Search the playlist |
 | `L` · `Shift+L` | Add files · add a folder |
 | `S` · `R` | Shuffle · repeat (off, all, one) |

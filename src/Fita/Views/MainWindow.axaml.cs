@@ -101,6 +101,12 @@ public partial class MainWindow : Window
     /// <summary>Controlo de 0 a 100 → ganho. Ao quadrado: a meio fica a −12 dB, como o ouvido espera.</summary>
     private static float VolumeGain(double position) => (float)Math.Pow(Math.Clamp(position, 0, 100) / 100, 2);
 
+    /// <summary>Sem som (M, ou clique no VOL). Não fica gravado: a Fita abre sempre com som.</summary>
+    private bool _muted;
+
+    /// <summary>O ganho que vai para o motor: o do volume, ou zero sem som.</summary>
+    private float OutputGain => _muted ? 0f : VolumeGain(_settings.Volume);
+
     // ── Reprodução ────────────────────────────────────────────────────────────
 
     private void SetupPlayback()
@@ -134,6 +140,20 @@ public partial class MainWindow : Window
         VolumeBox.Maximum = 100;
         VolumeBox.DefaultValue = 80;
         VolumeBox.Committed += (_, v) => SetVolume(v);
+        VolLabel.PointerPressed += (_, e) =>
+        {
+            if (!e.GetCurrentPoint(VolLabel).Properties.IsLeftButtonPressed)
+                return;
+            ToggleMute();
+            e.Handled = true;
+        };
+        IndMute.PointerPressed += (_, e) =>
+        {
+            if (!e.GetCurrentPoint(IndMute).Properties.IsLeftButtonPressed)
+                return;
+            ToggleMute();
+            e.Handled = true;
+        };
 
         Balance.UserChanged += (_, v) => SetBalance(Math.Abs(v) < 0.06 ? 0 : v);
         BalanceBox.Minimum = -100;
@@ -192,9 +212,25 @@ public partial class MainWindow : Window
         Volume.Value = value;
         VolumeBox.Value = Math.Round(value);
         _settings.Volume = value;
-        _engine.Volume = VolumeGain(value);
+        // Mexer no volume devolve o som, como num rádio.
+        if (!quiet && _muted)
+            SetMuted(false, quiet: true);
+        _engine.Volume = OutputGain;
         if (!quiet)
             ShowStatus($"{Loc.T("Vol")} {value:0}%");
+    }
+
+    private void ToggleMute() => SetMuted(!_muted);
+
+    private void SetMuted(bool muted, bool quiet = false)
+    {
+        _muted = muted;
+        _engine.Volume = OutputGain;
+        VolLabel.Classes.Set("alert", muted);
+        Volume.Opacity = VolumeBox.Opacity = muted ? 0.4 : 1;
+        SetIndicator(IndMute, muted);
+        if (!quiet)
+            ShowStatus(Loc.T(muted ? "MutedOn" : "MutedOff"));
     }
 
     /// <summary>-1 (esquerda) a 1 (direita).</summary>
@@ -573,9 +609,13 @@ public partial class MainWindow : Window
             TimeText.Text = time;
             MiniTime.Text = time;
         }
-        if (!Seek.IsDragging)
-            Seek.Value = duration > 0 ? position / duration : 0;
-        Seek.IsEnabled = duration > 0 && snap.State != PlayState.Stopped;
+        // Nas capturas a barra fica como o DemoFrame a pôs (lá nada toca).
+        if (!_demo)
+        {
+            if (!Seek.IsDragging)
+                Seek.Value = duration > 0 ? position / duration : 0;
+            Seek.IsEnabled = duration > 0 && snap.State != PlayState.Stopped;
+        }
 
         var glyph = snap.State switch { PlayState.Playing => GlyphKind.Play, PlayState.Paused => GlyphKind.Pause, _ => GlyphKind.Stop };
         StateGlyph.Kind = glyph;

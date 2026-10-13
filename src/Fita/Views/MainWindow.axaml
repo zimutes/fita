@@ -23,9 +23,7 @@
         <Grid ColumnDefinitions="Auto,*,Auto">
           <StackPanel Name="Brand" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
             <ctl:Glyph Kind="Logo" Width="15" Height="15" Foreground="{DynamicResource Accent}" Name="LogoGlyph" />
-            <TextBlock Name="TitleText" Text="FITA" FontFamily="{DynamicResource FontDisplay}"
-                       FontWeight="{DynamicResource TitleWeight}" LetterSpacing="{DynamicResource TitleSpacing}"
-                       FontSize="13.5" Foreground="{DynamicResource TitleFg}" VerticalAlignment="Center" />
+            <ctl:Wordmark Name="TitleText" Height="12" Foreground="{DynamicResource TitleFg}" VerticalAlignment="Center" />
             <TextBlock Name="ByText" Text="{DynamicResource L.By}" FontSize="10.5" Opacity="0.6"
                        Foreground="{DynamicResource TitleFg}" VerticalAlignment="Center" Margin="0,2,0,0" />
           </StackPanel>
@@ -96,6 +94,8 @@
                       <TextBlock Name="IndShuffle" Classes="indicator" Text="SHUF" />
                       <TextBlock Name="IndRepeat" Classes="indicator" Text="REP" />
                       <TextBlock Name="IndRg" Classes="indicator" Text="RG" />
+                      <TextBlock Name="IndMute" Classes="indicator alert" Text="{DynamicResource L.MuteInd}" Cursor="Hand"
+                                 ToolTip.Tip="{DynamicResource L.MuteTip}" />
                       <TextBlock Name="IndStopAfter" Classes="indicator alert" Text="STOP" />
                       <TextBlock Name="IndLimit" Classes="indicator alert" Text="{DynamicResource L.Limit}" ToolTip.Tip="{DynamicResource L.LimitTip}" />
                     </StackPanel>
@@ -104,8 +104,9 @@
               </Panel>
             </Border>
 
-            <!-- Posição -->
-            <ctl:LevelSlider Name="Seek" IsSeekBar="True" Height="18" Maximum="1" ToolTip.Tip="{DynamicResource L.SeekTip}" />
+            <!-- Posição: 18 px à vista e mais 5 em cima e em baixo que também apanham o clique -->
+            <ctl:LevelSlider Name="Seek" IsSeekBar="True" Height="28" Margin="0,-5" HitPadding="5" Maximum="1"
+                             ToolTip.Tip="{DynamicResource L.SeekTip}" />
 
             <!-- Transporte e modos -->
             <Grid ColumnDefinitions="Auto,*,Auto">
@@ -125,7 +126,8 @@
 
             <!-- Volume, balanço, painéis -->
             <Grid ColumnDefinitions="Auto,*,Auto,Auto,76,Auto,Auto" ColumnSpacing="6">
-              <TextBlock Classes="label" Text="{DynamicResource LU.Vol}" />
+              <TextBlock Name="VolLabel" Classes="label" Text="{DynamicResource LU.Vol}" Background="Transparent" Cursor="Hand"
+                         ToolTip.Tip="{DynamicResource L.MuteTip}" />
               <ctl:LevelSlider Name="Volume" Grid.Column="1" Height="20" Maximum="100" WheelStep="4" ToolTip.Tip="{DynamicResource L.VolTip}" />
               <ctl:ValueBox Name="VolumeBox" Grid.Column="2" ToolTip.Tip="{DynamicResource L.ValueTip}" />
               <TextBlock Grid.Column="3" Classes="label" Text="{DynamicResource LU.Bal}" Margin="6,0,0,0" />

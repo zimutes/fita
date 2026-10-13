@@ -30,8 +30,12 @@ public sealed class EqSettings
 
     public bool Enabled { get; set; } = true;
     public double Preamp { get; set; }
-    /// <summary>Baixa o pré-amplificador o suficiente para os reforços não saturarem.</summary>
-    public bool AutoPreamp { get; set; } = true;
+    /// <summary>
+    /// Baixa o pré-amplificador tanto quanto o maior reforço. Desligado por omissão: com ele, subir
+    /// uma banda nunca a punha mais alta, só baixava as outras (parecia um EQ ao contrário). Sem
+    /// ele, o limitador do motor trata dos picos.
+    /// </summary>
+    public bool AutoPreamp { get; set; }
     public string Preset { get; set; } = "Flat";
     public List<EqBand> Bands { get; set; } = DefaultBands();
 

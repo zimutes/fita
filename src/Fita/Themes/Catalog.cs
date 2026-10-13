@@ -70,6 +70,8 @@ public static class Catalog
             SliderThumbGlow = A("#0de6f6", 0.7),
             Vis = VisLook.Bars, VisLow = C("#0de6f6"), VisHigh = C("#ff2079"), VisPeak = C("#ffffff"),
             GraphCurve = C("#0de6f6"), GraphFill = A("#0de6f6", 0.12), GraphGrid = W(0.07), GraphSpectrum = A("#ff2079", 0.22),
+            // A crista acende no rosa do néon.
+            Ripple = new WaveRipple { Speed = 200, Width = 7, Lift = 12, Lens = 7, Crest = C("#ff2079") },
         },
 
         // ── 1995 Calling: cinzento de janela, relevo, barra azul-marinho, nada brilha ────────
@@ -106,6 +108,8 @@ public static class Catalog
             Slider = SliderLook.Bevel, SliderTrack = C("#808080"), SliderFill = C("#000080"), SliderThumb = C("#c0c0c0"),
             Vis = VisLook.Segments, VisLow = C("#00e640"), VisMid = C("#f0e000"), VisHigh = C("#ff3030"), VisPeak = C("#ffffff"),
             GraphCurve = C("#00e640"), GraphFill = A("#00e640", 0.10), GraphGrid = A("#00e640", 0.14), GraphSpectrum = A("#008080", 0.55),
+            // Aos solavancos e em degraus, como uma animação do Windows 95; a crista no verde-azulado do ambiente de trabalho.
+            Ripple = new WaveRipple { Speed = 170, Decay = 2.6, Width = 6, Lift = 12, Lens = 7, Fps = 12, Step = 2, Crest = C("#008080") },
             RoundWindow = false,
         },
 
@@ -135,6 +139,8 @@ public static class Catalog
             Slider = SliderLook.Hairline, SliderTrack = W(0.18), SliderFill = C("#ffffff"), SliderThumb = C("#ffffff"),
             Vis = VisLook.Thin, VisLow = W(0.55), VisHigh = C("#ffffff"), VisPeak = C("#38bdf8"),
             GraphCurve = C("#ffffff"), GraphFill = W(0.06), GraphGrid = W(0.07), GraphSpectrum = A("#38bdf8", 0.25),
+            // Curta e rápida; a crista apanha o azul do pico.
+            Ripple = new WaveRipple { Speed = 280, Decay = 3.2, Width = 5, Lift = 10, Lens = 6, LensWidth = 8, Crest = C("#38bdf8") },
         },
 
         // ── Boutique Gold: castanho quente, ouro em fio, serifa nos títulos ──────────────────
@@ -169,6 +175,8 @@ public static class Catalog
             Slider = SliderLook.Jewel, SliderTrack = A("#d4af37", 0.30), SliderFill = C("#d4af37"), SliderThumb = C("#e3c35a"),
             Vis = VisLook.Thin, VisLow = A("#d4af37", 0.55), VisHigh = C("#f3d77a"), VisPeak = C("#be123c"),
             GraphCurve = C("#d4af37"), GraphFill = A("#d4af37", 0.08), GraphGrid = A("#d4af37", 0.09), GraphSpectrum = A("#be123c", 0.30),
+            // Lenta e larga, sem pressa; a crista brilha em ouro claro.
+            Ripple = new WaveRipple { Speed = 120, Decay = 1.5, Width = 12, Lift = 9, Lens = 6, LensWidth = 16, Crest = C("#fff1c4") },
         },
 
         // ── Toxic Terminal: fósforo verde, varrimento de CRT, vídeo inverso ──────────────────
@@ -202,6 +210,8 @@ public static class Catalog
             Slider = SliderLook.Block, SliderTrack = A("#adff2f", 0.28), SliderFill = C("#adff2f"), SliderThumb = C("#adff2f"),
             Vis = VisLook.Segments, VisLow = A("#adff2f", 0.55), VisMid = C("#adff2f"), VisHigh = C("#eaffd6"), VisPeak = C("#f018ff"),
             GraphCurve = C("#adff2f"), GraphFill = A("#adff2f", 0.08), GraphGrid = A("#adff2f", 0.10), GraphSpectrum = A("#f018ff", 0.30),
+            // Aos blocos e ao ritmo de um ecrã que refresca; a crista é fósforo a queimar.
+            Ripple = new WaveRipple { Speed = 240, Decay = 2.4, Width = 6, Lift = 12, Lens = 7, Fps = 20, Step = 2, Crest = C("#eaffd6") },
             RoundWindow = false,
         },
 
@@ -236,6 +246,8 @@ public static class Catalog
             SliderThumbGlow = A("#00d4ff", 0.55),
             Vis = VisLook.Wave, VisLow = A("#00d4ff", 0.05), VisHigh = C("#00d4ff"), VisPeak = C("#fcd34d"),
             GraphCurve = C("#00d4ff"), GraphFill = A("#00d4ff", 0.10), GraphGrid = A("#00d4ff", 0.08), GraphSpectrum = A("#fcd34d", 0.22),
+            // Ondulação: três cristas que rolam devagar, com espuma branca.
+            Ripple = new WaveRipple { Speed = 150, Decay = 1.3, Width = 8, Lift = 11, Lens = 7, Crests = 3, Crest = C("#ffffff") },
         },
     ];
 

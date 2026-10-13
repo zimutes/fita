@@ -47,7 +47,7 @@ public class EqualizerTests
     [Fact]
     public void Auto_preamp_cancels_the_biggest_boost()
     {
-        var eq = new EqSettings();
+        var eq = new EqSettings { AutoPreamp = true };
         EqPresets.Apply(eq, EqPresets.BuiltIn.First(p => p.Name == "BassBoost"));
         var auto = EqMath.AutoPreampDb(eq, Rate);
         var max = EqMath.MaxBoostDb(EqMath.Filters(eq, Rate), Rate);

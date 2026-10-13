@@ -37,6 +37,10 @@
     <Setter Property="LetterSpacing" Value="{DynamicResource BtnSpacing}" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
+  <!-- O VOL sem som (clique nele ou M) -->
+  <Style Selector="TextBlock.label.alert">
+    <Setter Property="Foreground" Value="{DynamicResource Brand}" />
+  </Style>
   <Style Selector="TextBlock.muted">
     <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
   </Style>

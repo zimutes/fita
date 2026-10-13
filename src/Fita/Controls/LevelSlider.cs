@@ -11,6 +11,9 @@ namespace Fita.Controls;
 /// Controlo de deslizar desenhado à mão, com o aspeto do tema (cápsula, relevo, blocos, fio,
 /// losango). Serve para a posição, o volume, o balanço e as bandas do equalizador.
 /// Clicar salta para o ponto; roda do rato em passos; duplo clique volta ao valor por omissão.
+/// Apanha o rato em toda a sua área (não só onde há desenho), e a barra de posição ainda numa
+/// margem invisível em cima e em baixo (<see cref="HitPadding"/>), para não ser preciso acertar
+/// na calha.
 /// </summary>
 public sealed class LevelSlider : Control
 {
@@ -40,11 +43,15 @@ public sealed class LevelSlider : Control
     /// <summary>Na barra de posição: a forma de onda da faixa (0 a 1), desenhada no lugar da calha.</summary>
     public static readonly StyledProperty<float[]?> WaveformProperty =
         AvaloniaProperty.Register<LevelSlider, float[]?>(nameof(Waveform));
+    /// <summary>Na horizontal: margem em cima e em baixo que apanha o rato mas não se desenha.</summary>
+    public static readonly StyledProperty<double> HitPaddingProperty =
+        AvaloniaProperty.Register<LevelSlider, double>(nameof(HitPadding));
 
     static LevelSlider()
     {
         AffectsRender<LevelSlider>(MinimumProperty, MaximumProperty, ValueProperty, OriginProperty,
-            OrientationProperty, IsEnabledProperty, IsSeekBarProperty, WaveformProperty, MarkAProperty, MarkBProperty);
+            OrientationProperty, IsEnabledProperty, IsSeekBarProperty, WaveformProperty, MarkAProperty, MarkBProperty,
+            HitPaddingProperty);
         FocusableProperty.OverrideDefaultValue<LevelSlider>(false);
     }
 
@@ -66,6 +73,7 @@ public sealed class LevelSlider : Control
     public Orientation Orientation { get => GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
     public bool IsSeekBar { get => GetValue(IsSeekBarProperty); set => SetValue(IsSeekBarProperty, value); }
     public float[]? Waveform { get => GetValue(WaveformProperty); set => SetValue(WaveformProperty, value); }
+    public double HitPadding { get => GetValue(HitPaddingProperty); set => SetValue(HitPaddingProperty, value); }
     public double? MarkA { get => GetValue(MarkAProperty); set => SetValue(MarkAProperty, value); }
     public double? MarkB { get => GetValue(MarkBProperty); set => SetValue(MarkBProperty, value); }
 
@@ -119,6 +127,7 @@ public sealed class LevelSlider : Control
         _dragging = true;
         e.Pointer.Capture(this);
         SetByUser(ValueAt(point.Position));
+        Stir(point.Position.X - Pad, strong: true);
         e.Handled = true;
         InvalidateVisual();
     }
@@ -126,8 +135,11 @@ public sealed class LevelSlider : Control
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
+        var p = e.GetPosition(this);
         if (_dragging)
-            SetByUser(ValueAt(e.GetPosition(this)));
+            SetByUser(ValueAt(p));
+        if (_hover || _dragging)
+            Stir(p.X - Pad, strong: false);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -162,7 +174,109 @@ public sealed class LevelSlider : Control
     {
         base.OnPointerExited(e);
         _hover = false;
+        _hoverAt = null;
+        Animate();
         InvalidateVisual();
+    }
+
+    // ── A onda ao passar o rato (só na forma de onda da barra de posição) ─────────────────────
+    // Como no leitor do estufa.org: as barras debaixo do cursor sobem (a lupa) e cada movimento
+    // solta uma onda que corre para os dois lados e se vai apagando. O jeito da onda (rapidez,
+    // largura, degraus, cor da crista) é do tema: ThemeDef.Ripple.
+
+    private readonly record struct Ripple(double At, long Born, double Strength);
+
+    private readonly List<Ripple> _ripples = [];
+    private double? _hoverAt;
+    private double _lens;
+    private double _lastRippleAt = double.NaN;
+    private long _lastRippleTime;
+    private long _lastFrame;
+    private bool _animating;
+
+    private bool WaveActive => IsSeekBar && !Vertical && IsEnabled && Waveform is { Length: > 1 };
+
+    private void Stir(double at, bool strong)
+    {
+        if (!WaveActive)
+            return;
+        var now = Environment.TickCount64;
+        _hoverAt = at;
+        if (strong || double.IsNaN(_lastRippleAt) || Math.Abs(at - _lastRippleAt) > 7 || now - _lastRippleTime > 140)
+        {
+            _ripples.Add(new Ripple(at, now, strong ? 1 : 0.5));
+            if (_ripples.Count > 8)
+                _ripples.RemoveAt(0);
+            _lastRippleAt = at;
+            _lastRippleTime = now;
+        }
+        Animate();
+    }
+
+    private void Animate()
+    {
+        if (_animating || TopLevel.GetTopLevel(this) is not { } top)
+            return;
+        _animating = true;
+        top.RequestAnimationFrame(Frame);
+    }
+
+    private void Frame(TimeSpan _)
+    {
+        _animating = false;
+        var now = Environment.TickCount64;
+        var dt = _lastFrame == 0 ? 1 / 60.0 : Math.Clamp((now - _lastFrame) / 1000.0, 0, 0.1);
+        _lastFrame = now;
+        var target = _hoverAt is null || !WaveActive ? 0.0 : 1.0;
+        _lens += (target - _lens) * (1 - Math.Exp(-dt * 11));
+        // Uma onda acaba quando já só tem 1 % da força.
+        var life = (long)(1000 * 4.6 / Math.Max(0.3, ThemeManager.Current.Ripple.Decay));
+        _ripples.RemoveAll(r => now - r.Born > life);
+        InvalidateVisual();
+        if (Math.Abs(target - _lens) < 0.005 && _ripples.Count == 0)
+        {
+            _lens = target;
+            _lastFrame = 0;
+            return;
+        }
+        Animate();
+    }
+
+    /// <summary>Quanto sobe (px) a barra que está em <paramref name="at"/>, e a força da crista ali (0 a 1).</summary>
+    private (double Lift, double Crest) WaveLift(WaveRipple r, double at, long now)
+    {
+        var lift = 0.0;
+        if (_hoverAt is { } hx && _lens > 0.001)
+        {
+            var d = at - hx;
+            lift += r.Lens * _lens * Math.Exp(-d * d / (2 * r.LensWidth * r.LensWidth));
+        }
+        var crest = 0.0;
+        foreach (var w in _ripples)
+        {
+            var age = (now - w.Born) / 1000.0;
+            if (r.Fps > 0)
+                age = Math.Floor(age * r.Fps) / r.Fps;
+            var k = w.Strength * Math.Exp(-age * r.Decay);
+            var d = Math.Abs(at - w.At) - age * r.Speed;
+            double shape;
+            if (r.Crests > 1)
+            {
+                // Uma ondulação: várias cristas debaixo de um envelope, como a rebentação.
+                var spread = r.Width * r.Crests * 0.8;
+                shape = Math.Cos(2 * Math.PI * d / (r.Width * 3.2)) * Math.Exp(-d * d / (2 * spread * spread));
+            }
+            else
+            {
+                // Uma crista com uma cava atrás.
+                var s2 = 2 * r.Width * r.Width;
+                var behind = d + 2.25 * r.Width;
+                shape = Math.Exp(-d * d / s2) - 0.45 * Math.Exp(-behind * behind / s2);
+            }
+            lift += k * r.Lift * shape;
+            crest = Math.Max(crest, k * shape);
+        }
+        return (lift, Math.Clamp(crest, 0, 1));
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -180,11 +294,16 @@ public sealed class LevelSlider : Control
     {
         var t = ThemeManager.Current;
         var w = Bounds.Width;
-        var h = Bounds.Height;
-        if (w <= 0 || h <= 0)
+        var full = Bounds.Height;
+        if (w <= 0 || full <= 0)
             return;
+        // Fundo transparente: assim o rato conta em toda a área, e não só onde há traço.
+        context.FillRectangle(Brushes.Transparent, new Rect(Bounds.Size));
+        _slop = Vertical ? 0 : Math.Clamp(HitPadding, 0, Math.Max(0, (full - 4) / 2));
+        var h = full - 2 * _slop;
         var dim = IsEnabled ? 1.0 : 0.45;
         using var opacity = context.PushOpacity(dim);
+        using var shift = context.PushTransform(Matrix.CreateTranslation(0, _slop));
         try
         {
             RenderLook(context, t, w, h);
@@ -195,6 +314,9 @@ public sealed class LevelSlider : Control
                 DrawLoopMarks(context, t, w, h);
         }
     }
+
+    /// <summary>A margem de clique desta vez (a forma de onda pode crescer para dentro dela).</summary>
+    private double _slop;
 
     /// <summary>As marcas do ciclo A-B: um traço em cada ponta e, ligado, a zona entre elas realçada.</summary>
     private void DrawLoopMarks(DrawingContext context, ThemeDef t, double w, double h)
@@ -354,7 +476,8 @@ public sealed class LevelSlider : Control
     /// <summary>
     /// A forma de onda no lugar da calha, na mesma altura: o que já tocou na cor do enchimento,
     /// o resto na da calha, e uma linha fina na posição. No tema de terminal as barras vão aos
-    /// degraus, como blocos.
+    /// degraus, como blocos. Com o rato por cima, as barras sobem e ondulam (podem crescer para a
+    /// margem de clique), e o troço entre a posição e o rato fica meio aceso.
     /// </summary>
     private void DrawWaveform(DrawingContext context, ThemeDef t, float[] wave, double f, double length, double h)
     {
@@ -363,9 +486,16 @@ public sealed class LevelSlider : Control
         var gap = blocky ? 1.0 : 1.0;
         var max = h - 4;
         var mid = h / 2;
+        var tallest = h + 2 * _slop - 2;
         var played = new SolidColorBrush(t.SliderFill);
         var rest = new SolidColorBrush(t.SliderTrack);
+        var ahead = new SolidColorBrush(t.SliderFill, 0.45);
         var head = Pad + f * length;
+        var ripple = t.Ripple;
+        var step = blocky ? Math.Max(2, ripple.Step) : ripple.Step;
+        var moving = _lens > 0.001 || _ripples.Count > 0;
+        var now = Environment.TickCount64;
+        double? hover = _hoverAt is { } hx && _lens > 0.05 ? Pad + Math.Clamp(hx, 0, length) : null;
         for (var x = 0.0; x + bar <= length + 0.01; x += bar + gap)
         {
             var i = (int)(x / length * wave.Length);
@@ -373,16 +503,34 @@ public sealed class LevelSlider : Control
             var v = 0f;
             for (var j = i; j < Math.Min(to, wave.Length); j++)
                 v = Math.Max(v, wave[j]);
-            var height = Math.Max(blocky ? 2 : 1.5, v * max);
-            if (blocky)
-                height = Math.Max(2, Math.Round(height / 2) * 2);
+            var height = v * max;
+            var crest = 0.0;
+            if (moving)
+            {
+                var (lift, c) = WaveLift(ripple, x + bar / 2, now);
+                height += lift;
+                crest = c;
+            }
+            height = Math.Clamp(height, blocky ? 2 : 1.5, tallest);
+            if (step > 0)
+                height = Math.Max(step, Math.Round(height / step) * step);
             var r = new Rect(Pad + x, mid - height / 2, bar, height);
-            context.FillRectangle(Pad + x + bar / 2 <= head ? played : rest, r);
+            var centre = Pad + x + bar / 2;
+            var brush = centre <= head ? played : hover is { } hv && centre <= hv ? ahead : rest;
+            if (crest > 0.04)
+                brush = new SolidColorBrush(Lerp(brush.Color, ripple.Crest, crest), brush.Opacity + (1 - brush.Opacity) * crest);
+            context.FillRectangle(brush, r);
         }
+        if (hover is { } line)
+            context.FillRectangle(new SolidColorBrush(t.Text, 0.55 * _lens), new Rect(line - 0.5, 1, 1, h - 2));
         var thick = _hover || _dragging ? 3.0 : 2.0;
         context.FillRectangle(new SolidColorBrush(_hover || _dragging ? t.Text : t.SliderThumb),
             new Rect(head - thick / 2, 1, thick, h - 2));
     }
+
+    private static Color Lerp(Color a, Color b, double k) => Color.FromArgb(
+        (byte)(a.A + (b.A - a.A) * k), (byte)(a.R + (b.R - a.R) * k),
+        (byte)(a.G + (b.G - a.G) * k), (byte)(a.B + (b.B - a.B) * k));
 
     /// <summary>Moldura de Windows 95: luz em cima/esquerda e sombra em baixo/direita (ou o contrário).</summary>
     internal static void Bevel(DrawingContext context, Rect r, bool raised)

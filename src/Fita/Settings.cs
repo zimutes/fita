@@ -11,6 +11,9 @@ public enum ReplayGainMode { Off, Track, Album }
 /// <summary>Escolhas que ficam de uma vez para a outra.</summary>
 public sealed class AppSettings
 {
+    /// <summary>Revisão do ficheiro, para corrigir uma vez o que ficou gravado por versões antigas.</summary>
+    public const int CurrentRevision = 1;
+    public int Revision { get; set; }
     /// <summary>"en" (por omissão) ou "pt".</summary>
     public string Language { get; set; } = "en";
     public string Theme { get; set; } = "purple";
@@ -107,6 +110,10 @@ public static class SettingsStore
                 s.PlaylistHeight = Math.Clamp(double.IsFinite(s.PlaylistHeight) ? s.PlaylistHeight : 260, 120, 2000);
                 s.Crossfade = Math.Clamp(double.IsFinite(s.Crossfade) ? s.Crossfade : 0, 0, 12);
                 s.Speed = Math.Clamp(double.IsFinite(s.Speed) && s.Speed > 0 ? s.Speed : 1, 0.5, 2);
+                // Revisão 1: o pré-amplificador automático passou a vir desligado (ver EqSettings).
+                if (s.Revision < 1)
+                    s.Eq.AutoPreamp = false;
+                s.Revision = AppSettings.CurrentRevision;
                 return s;
             }
         }
@@ -114,7 +121,7 @@ public static class SettingsStore
         {
             Log.Write("Falha a ler as definições: " + ex.Message);
         }
-        return new AppSettings();
+        return new AppSettings { Revision = AppSettings.CurrentRevision };
     }
 
     private static string? _lastSaved;

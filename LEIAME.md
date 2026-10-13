@@ -46,8 +46,9 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 - **Equalizador com detalhe.** Dez bandas (31 Hz a 16 kHz) com controlos de deslizar e um
   gráfico da curva real por cima do espectro ao vivo. Arraste um ponto para mudar o ganho e a
   frequência, use a roda para a largura (Q), e o botão direito para os valores exatos e o tipo
-  de banda: sino, prateleira grave/aguda, corte de graves/agudos. Pré-amplificador, pré *Auto*
-  para os reforços nunca saturarem, um limitador de segurança, 12 predefinições e as suas.
+  de banda: sino, prateleira grave/aguda, corte de graves/agudos. Pré-amplificador, um
+  limitador para os reforços não saturarem, pré *Auto* opcional (desligado por omissão: baixa
+  tudo tanto quanto o maior reforço), 12 predefinições e as suas.
 - **Cada nível tem uma caixa onde se escreve o valor:** volume, balanço (`E30`, `C`, `D30`),
   pré-amplificador e cada banda. Enter aplica; vazio + Enter ou duplo clique repõe (volume 80,
   balanço ao centro, 0 dB). Setas e roda do rato andam um passo.
@@ -68,9 +69,12 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   Fita fica atenta às pastas e só volta a ler os ficheiros que mudaram.
 - **Mostrador clássico:** tempo (clique para o que falta), título a correr, linha do formato,
   espectro ou osciloscópio (clique para trocar) e as luzinhas de estado: EQ, aleatório,
-  repetir, ReplayGain, parar depois desta, limitador. A capa (a do ficheiro, ou um `cover.jpg`
-  / `folder.jpg` ao lado) fica esbatida por trás do texto, para a janela não crescer, e a barra
-  de posição desenha a forma de onda da faixa, na mesma altura de uma barra simples.
+  repetir, ReplayGain, sem som, parar depois desta, limitador. A capa (a do ficheiro, ou um
+  `cover.jpg` / `folder.jpg` ao lado) fica esbatida por trás do texto, para a janela não
+  crescer, e a barra de posição desenha a forma de onda da faixa, na mesma altura de uma barra
+  simples. Com o rato por cima, as barras sobem e ondulam, cada tema à sua maneira; e o clique
+  conta mesmo que não acerte em cheio.
+- **Tirar o som de uma vez:** `M`, ou clique no *VOL*. Mexer no volume devolve o som.
 - **Visualização grande, à MilkDrop:** duplo clique no espectro (ou `Ctrl+Shift+K`, como no
   Winamp) abre uma janela à parte com uma visualização feita de raiz: cada imagem é a anterior
   com zoom, rodada, em remoinho e a desvanecer, com a onda da música por cima e um empurrão em
@@ -115,6 +119,7 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 | `Espaço` | Tocar / pausa |
 | `←` `→` | Recuar / avançar 5 s (`Ctrl`: 30 s) |
 | `↑` `↓` | Volume |
+| `M` | Tirar / repor o som |
 | `J` | Procurar na lista |
 | `L` · `Shift+L` | Juntar ficheiros · juntar uma pasta |
 | `S` · `R` | Aleatório · repetir (não, tudo, uma) |

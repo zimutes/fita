@@ -94,6 +94,7 @@ public partial class MainWindow
 
         playback.Items.Add(Plain(LoopMenuText(), CycleLoop));
         playback.Items.Add(new Separator());
+        playback.Items.Add(Check(Loc.T("Mute"), _muted, ToggleMute));
         playback.Items.Add(Check(Loc.T("StopAfter"), _engine.StopAfterCurrent, ToggleStopAfter));
         playback.Items.Add(Check(Loc.T("ResumeOption"), _settings.Resume, () => _settings.Resume = !_settings.Resume));
         menu.Items.Add(playback);
@@ -244,11 +245,8 @@ public partial class MainWindow
     private void ShowAbout()
     {
         var version = typeof(MainWindow).Assembly.GetName().Version;
-        var name = new TextBlock { Text = "FITA", FontSize = 26 };
-        name.Bind(TextBlock.FontFamilyProperty, this.GetResourceObservable("FontDisplay"));
-        name.Bind(TextBlock.FontWeightProperty, this.GetResourceObservable("TitleWeight"));
-        name.Bind(TextBlock.LetterSpacingProperty, this.GetResourceObservable("TitleSpacing"));
-        name.Bind(TextBlock.ForegroundProperty, this.GetResourceObservable("Accent"));
+        var name = new Controls.Wordmark { Height = 22, VerticalAlignment = VerticalAlignment.Center };
+        name.Bind(Controls.Wordmark.ForegroundProperty, this.GetResourceObservable("Accent"));
         var tagline = new TextBlock { Text = Loc.T("Tagline"), FontSize = 15 };
         tagline.Bind(TextBlock.FontFamilyProperty, this.GetResourceObservable("FontDisplay"));
         var logo = new Controls.Glyph { Kind = Controls.GlyphKind.Logo, Width = 30, Height = 30 };
@@ -280,6 +278,7 @@ public partial class MainWindow
             ("Space", "PlayTip"),
             ("←  →", "K.Seek"),
             ("↑  ↓", "K.Volume"),
+            ("M", "K.Mute"),
             ("J", "K.Jump"),
             ("L  ·  Shift+L", "K.Open"),
             ("S  ·  R", "K.Modes"),
