@@ -97,6 +97,9 @@ public sealed class Track : INotifyPropertyChanged
     public int BitsPerSample { get; set; }
     public string Codec { get; set; } = "";
 
+    /// <summary>O volume já foi medido (EBU R128) por não haver ReplayGain nas etiquetas.</summary>
+    public bool LoudnessScanned { get; set; }
+
     /// <summary>ReplayGain em dB (NaN se não houver).</summary>
     public double TrackGain { get; set; } = double.NaN;
     public double AlbumGain { get; set; } = double.NaN;

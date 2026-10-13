@@ -32,6 +32,8 @@ public sealed class AppSettings
     public bool ShowCover { get; set; } = true;
     public bool TimeRemaining { get; set; }
     public ReplayGainMode ReplayGain { get; set; }
+    /// <summary>Medir (EBU R128) as faixas que não trazem ReplayGain.</summary>
+    public bool LoudnessScan { get; set; } = true;
     /// <summary>Caminho escolhido à mão para o ffmpeg (vazio: procurar sozinho).</summary>
     public string FfmpegPath { get; set; } = "";
     /// <summary>Vazio: o dispositivo de som por omissão.</summary>

@@ -72,7 +72,10 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   changes more than colours: fonts, button shapes, relief or glow, how the sliders and the
   spectrum are drawn, even whether things animate.
 - **Compact mode** (the old *windowshade*): the whole player in the title bar.
-- **ReplayGain** (track or album), output device choice, always on top, stop after current.
+- **ReplayGain** (track or album). Files without ReplayGain tags are measured in the
+  background (EBU R128, with ffmpeg) so they play at the same level too: only the current
+  track and the next few, at low priority, and each file once.
+- Output device choice, always on top, stop after current.
 - **Part of the system:** Fita shows up in the Windows media flyout and on the lock screen
   (on Linux, through MPRIS: GNOME, KDE, `playerctl`) with title, artist, album art and
   position, and takes the media keys and headphone buttons from there, even with the window

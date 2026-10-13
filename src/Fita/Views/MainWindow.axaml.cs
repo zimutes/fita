@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly AudioEngine _engine;
     private readonly Playlist _playlist = new();
     private readonly MetadataLoader _tags;
+    private readonly LoudnessScanner _loudness;
     private readonly SpectrumAnalyzer _analyzer = new();
     private readonly DispatcherTimer _slowTimer;
     private string? _ffmpeg;
@@ -58,6 +59,12 @@ public partial class MainWindow : Window
         _engine.ConfigureEq(_settings.Eq);
         _tags = new MetadataLoader(() => _ffprobe);
         _tags.Progress += UpdateFooterSoon;
+        _loudness = new LoudnessScanner(() => _ffmpeg);
+        _loudness.Scanned += t =>
+        {
+            if (t == _shownTrack)
+                Refresh(force: true);
+        };
 
         Vis.Analyzer = _analyzer;
         Graph.Analyzer = _analyzer;
@@ -255,6 +262,7 @@ public partial class MainWindow : Window
         _engine.Play(ToPlayItem(track), start);
         _resumeAt = 0;
         _shownTrack = null;
+        ScanUpcoming();
         EnsureFrameLoop();
         Refresh(force: true);
     }
@@ -388,6 +396,22 @@ public partial class MainWindow : Window
         _settings.Vis = mode;
         Vis.Mode = mode;
         Vis.InvalidateVisual();
+    }
+
+    /// <summary>
+    /// Com o ReplayGain ligado, mede a faixa atual e as que vêm a seguir, se não trouxerem
+    /// etiquetas. Só essas: medir a lista toda punha o computador a trabalhar sem pedir.
+    /// </summary>
+    private void ScanUpcoming()
+    {
+        if (_demo || _settings.ReplayGain == ReplayGainMode.Off || !_settings.LoudnessScan)
+            return;
+        var current = PlayingTrack ?? _playlist.Current;
+        var tracks = new List<Track>();
+        if (current is not null)
+            tracks.Add(current);
+        tracks.AddRange(_playlist.Upcoming(current, 5));
+        _loudness.Request(tracks);
     }
 
     private void ToggleStopAfter()
@@ -618,6 +642,8 @@ public partial class MainWindow : Window
             EnsureFrameLoop();
         }
         SyncSystem(_engine.Snapshot());
+        if (_blink % 8 == 0)
+            ScanUpcoming();
         // As definições gravam-se também a meio (a cada ~10 s, se mudaram): se a app for fechada
         // à força, não se perde o tema, o volume nem o EQ.
         if (_blink % 40 == 0 && !_demo)
@@ -664,6 +690,7 @@ public partial class MainWindow : Window
         _slowTimer.Stop();
         _engine.Dispose();
         _tags.Dispose();
+        _loudness.Dispose();
         StopSystemIntegration();
     }
 

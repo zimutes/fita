@@ -31,6 +31,8 @@ public static class PlaylistStore
         public long Size { get; set; }
         public DateTime Modified { get; set; }
         public bool Loaded { get; set; }
+        /// <summary>O ganho foi medido pela Fita (não veio das etiquetas).</summary>
+        public bool Scanned { get; set; }
     }
 
     public sealed class Data
@@ -104,7 +106,7 @@ public static class PlaylistStore
         Year = t.Year, Genre = t.Genre, Duration = t.Duration, Bitrate = t.Bitrate, SampleRate = t.SampleRate,
         Channels = t.Channels, Bits = t.BitsPerSample, Codec = t.Codec, TrackGain = Nan(t.TrackGain),
         AlbumGain = Nan(t.AlbumGain), TrackPeak = Nan(t.TrackPeak), AlbumPeak = Nan(t.AlbumPeak),
-        Size = t.FileSize, Modified = t.Modified, Loaded = t.MetadataLoaded,
+        Size = t.FileSize, Modified = t.Modified, Loaded = t.MetadataLoaded, Scanned = t.LoudnessScanned,
     };
 
     private static Track FromEntry(Entry e)
@@ -118,7 +120,7 @@ public static class PlaylistStore
             Channels = e.Channels, BitsPerSample = e.Bits, Codec = e.Codec ?? "",
             TrackGain = e.TrackGain ?? double.NaN, AlbumGain = e.AlbumGain ?? double.NaN,
             TrackPeak = e.TrackPeak ?? double.NaN, AlbumPeak = e.AlbumPeak ?? double.NaN,
-            FileSize = e.Size, Modified = e.Modified, MetadataLoaded = e.Loaded,
+            FileSize = e.Size, Modified = e.Modified, MetadataLoaded = e.Loaded, LoudnessScanned = e.Scanned,
         };
         return t;
     }

@@ -201,6 +201,23 @@ public sealed class Playlist
         return Repeat != RepeatMode.Off ? Items[0] : null;
     }
 
+    /// <summary>
+    /// As próximas faixas pela ordem em que vão tocar (aleatória ou não), sem mexer em nada: no
+    /// fim da ordem para, em vez de baralhar outra vez.
+    /// </summary>
+    public List<Track> Upcoming(Track? from, int count)
+    {
+        var order = _shuffle ? _shuffleOrder : (IList<Track>)Items;
+        var start = from is null ? 0 : order.IndexOf(from) + 1;
+        var result = new List<Track>();
+        for (var i = Math.Max(0, start); i < order.Count && result.Count < count; i++)
+            result.Add(order[i]);
+        if (result.Count < count && Repeat != RepeatMode.Off && !_shuffle)
+            for (var i = 0; i < start - 1 && result.Count < count; i++)
+                result.Add(order[i]);
+        return result;
+    }
+
     public Track? Before(Track? track)
     {
         if (Items.Count == 0)

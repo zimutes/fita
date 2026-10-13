@@ -69,8 +69,10 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   do que as cores: fontes, forma dos botões, relevo ou brilho, o desenho dos controlos e do
   espectro, e até se há animação.
 - **Modo compacto** (o antigo *windowshade*): o leitor inteiro na barra de título.
-- **ReplayGain** (por faixa ou por álbum), escolha da saída de som, sempre à frente, parar
-  depois desta.
+- **ReplayGain** (por faixa ou por álbum). Os ficheiros sem etiquetas de ReplayGain são
+  medidos em segundo plano (EBU R128, com o ffmpeg) para tocarem também ao mesmo volume: só a
+  faixa atual e as próximas, com prioridade baixa, e cada ficheiro uma vez.
+- Escolha da saída de som, sempre à frente, parar depois desta.
 - **Parte do sistema:** a Fita aparece no painel multimédia do Windows e no ecrã de bloqueio
   (no Linux, por MPRIS: GNOME, KDE, `playerctl`) com título, artista, capa e posição, e recebe
   por aí as teclas multimédia e os botões dos auscultadores, mesmo com a janela em segundo

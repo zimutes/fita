@@ -163,6 +163,7 @@ public static class Loc
         ["VisSpectrum"] = ("Spectrum", "Espectro"),
         ["VisScope"] = ("Oscilloscope", "Osciloscópio"),
         ["VisOff"] = ("Off", "Desligado"),
+        ["LoudnessScan"] = ("Measure files without tags", "Medir os ficheiros sem etiquetas"),
         ["ShowCover"] = ("Album art in the display", "Capa no mostrador"),
         ["AlwaysOnTop"] = ("Always on top", "Sempre à frente"),
         ["TaskbarProgress"] = ("Progress on the taskbar", "Progresso na barra de tarefas"),

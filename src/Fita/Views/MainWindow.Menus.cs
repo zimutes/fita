@@ -58,6 +58,12 @@ public partial class MainWindow
         rg.Items.Add(Radio(Loc.T("RgOff"), _settings.ReplayGain == ReplayGainMode.Off, () => SetReplayGain(ReplayGainMode.Off)));
         rg.Items.Add(Radio(Loc.T("RgTrack"), _settings.ReplayGain == ReplayGainMode.Track, () => SetReplayGain(ReplayGainMode.Track)));
         rg.Items.Add(Radio(Loc.T("RgAlbum"), _settings.ReplayGain == ReplayGainMode.Album, () => SetReplayGain(ReplayGainMode.Album)));
+        rg.Items.Add(new Separator());
+        rg.Items.Add(Check(Loc.T("LoudnessScan"), _settings.LoudnessScan, () =>
+        {
+            _settings.LoudnessScan = !_settings.LoudnessScan;
+            ScanUpcoming();
+        }));
         menu.Items.Add(rg);
 
         var output = new MenuItem { Header = Loc.T("Output") };
@@ -113,6 +119,7 @@ public partial class MainWindow
     private void SetReplayGain(ReplayGainMode mode)
     {
         _settings.ReplayGain = mode;
+        ScanUpcoming();
         Refresh(force: true);
     }
 
