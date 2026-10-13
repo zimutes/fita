@@ -120,7 +120,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat > notas.md <<'EOF'
-          Needs [ffmpeg](https://ffmpeg.org): `winget install Gyan.FFmpeg` on Windows, `sudo apt install ffmpeg` on Debian/Ubuntu.
+          Needs [ffmpeg](https://ffmpeg.org): `winget install Gyan.FFmpeg` on Windows, `sudo apt install ffmpeg` on Debian/Ubuntu, `sudo dnf install ffmpeg-free` on Fedora.
 
           **Fita.exe**: Windows 10/11 x64, needs the [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
           **Fita-autonomo-win-x64.zip**: self-contained, no .NET needed.

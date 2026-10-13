@@ -97,12 +97,15 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 ## O que é preciso
 
 - **[ffmpeg](https://ffmpeg.org)**, gratuito: `winget install Gyan.FFmpeg` no Windows,
-  `sudo apt install ffmpeg` em Debian/Ubuntu (ou o pacote da sua distribuição). A Fita
+  `sudo apt install ffmpeg` em Debian/Ubuntu, `sudo dnf install ffmpeg-free` em Fedora (ou o
+  pacote da sua distribuição; o `ffmpeg-free` do Fedora já lê AAC, WMA e ALAC). A Fita
   encontra-o sozinho (winget, Chocolatey, Scoop, `PATH`, ou uma cópia portátil numa pasta
   `ffmpeg/bin` ao lado da app); se não o encontrar, avisa e deixa indicar onde está. O ffmpeg
   não vem incluído.
-- **Windows 10 ou 11 (x64)**, ou **Linux** (x64 ou arm64) com X11 ou XWayland.
-- Para compilar: o [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
+- **Windows 10 ou 11 (x64)**, ou **Linux** (x64 ou arm64) com X11 ou XWayland (testada em
+  Debian e Fedora 44; em GNOME/KDE com Wayland corre pelo XWayland, que já vem com eles).
+- Para compilar: o [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+  (Fedora: `sudo dnf install dotnet-sdk-10.0`).
 
 ## Instalar
 

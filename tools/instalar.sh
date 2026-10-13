@@ -77,7 +77,16 @@ EOF
 command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$HOME/.local/share/applications" || true
 
 echo "Fita instalada em $destino."
-command -v ffmpeg >/dev/null 2>&1 || echo "Atenção: falta o ffmpeg, que a Fita usa para ler a música (Debian/Ubuntu: sudo apt install ffmpeg)."
+if ! command -v ffmpeg >/dev/null 2>&1; then
+    if command -v dnf >/dev/null 2>&1; then
+        # O ffmpeg-free do Fedora chega: lê AAC, WMA, ALAC e companhia (testado no Fedora 44).
+        echo "Atenção: falta o ffmpeg, que a Fita usa para ler a música (Fedora: sudo dnf install ffmpeg-free)."
+    elif command -v apt-get >/dev/null 2>&1; then
+        echo "Atenção: falta o ffmpeg, que a Fita usa para ler a música (Debian/Ubuntu: sudo apt install ffmpeg)."
+    else
+        echo "Atenção: falta o ffmpeg, que a Fita usa para ler a música (instale o pacote ffmpeg da sua distribuição)."
+    fi
+fi
 case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;
     *) echo "Nota: ~/.local/bin não está no PATH; a Fita aparece no menu de aplicações na mesma." ;;

@@ -99,11 +99,14 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 ## What you need
 
 - **[ffmpeg](https://ffmpeg.org)**, free: `winget install Gyan.FFmpeg` on Windows,
-  `sudo apt install ffmpeg` on Debian/Ubuntu (or your distro's package). Fita finds it by
+  `sudo apt install ffmpeg` on Debian/Ubuntu, `sudo dnf install ffmpeg-free` on Fedora (or
+  your distro's package; Fedora's `ffmpeg-free` already plays AAC, WMA and ALAC). Fita finds it by
   itself (winget, Chocolatey, Scoop, `PATH`, or a portable copy in an `ffmpeg/bin` folder next
   to the app); if it can't, it tells you and lets you point to it. ffmpeg is not bundled.
-- **Windows 10 or 11 (x64)**, or **Linux** (x64 or arm64) with X11 or XWayland.
-- To build: the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
+- **Windows 10 or 11 (x64)**, or **Linux** (x64 or arm64) with X11 or XWayland (tested on
+  Debian and Fedora 44; on GNOME/KDE with Wayland it runs through XWayland, which they ship).
+- To build: the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+  (Fedora: `sudo dnf install dotnet-sdk-10.0`).
 
 ## Install
 
