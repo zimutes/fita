@@ -15,6 +15,9 @@ public sealed class Track : INotifyPropertyChanged
     private bool _failed;
     private int _number;
     private bool _dropTarget;
+    private Producer.TrackAnalysis? _analysis;
+    private bool _isReference;
+    private double[]? _bandDeltas;
 
     public Track(string path)
     {
@@ -123,6 +126,30 @@ public sealed class Track : INotifyPropertyChanged
     public int Number { get => _number; set => Set(ref _number, value); }
     /// <summary>Marca de "largar aqui" ao arrastar dentro da lista.</summary>
     public bool DropTarget { get => _dropTarget; set => Set(ref _dropTarget, value); }
+
+    // ── Modo producer (não se grava com a lista: a análise tem a sua cache) ──
+
+    public Producer.TrackAnalysis? Analysis
+    {
+        get => _analysis;
+        set
+        {
+            if (Set(ref _analysis, value))
+                OnPropertyChanged(nameof(ProducerText));
+        }
+    }
+
+    /// <summary>Faixa de referência: o A/B e o balanço tonal comparam-se com ela.</summary>
+    public bool IsReference { get => _isReference; set => Set(ref _isReference, value); }
+
+    /// <summary>O balanço por banda em relação à comparação (dB), para as barrinhas da lista.</summary>
+    public double[]? BandDeltas { get => _bandDeltas; set => Set(ref _bandDeltas, value); }
+
+    /// <summary>Na lista, no modo producer: volume integrado e pico real.</summary>
+    public string ProducerText => _analysis is { HasLoudness: true } a
+        ? a.Integrated.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture).Replace('-', '−') + " "
+          + (double.IsFinite(a.TruePeak) ? a.TruePeak.ToString("+0.0;−0.0", System.Globalization.CultureInfo.InvariantCulture) : "")
+        : _analysis is null ? "…" : "—";
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

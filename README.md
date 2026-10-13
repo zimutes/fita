@@ -112,6 +112,41 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   natural order).
 - **English or Portuguese.**
 
+### Producer mode
+
+For checking mixes and masters against references, without the window growing (`Ctrl+P`, or
+*Producer* in the menu):
+
+<p align="center">
+  <img src="docs/producer.png" width="400" alt="Fita in producer mode: loudness and true peak on the display, clipping marked on the seek bar, and per-track numbers and tonal-balance bars in the playlist">
+</p>
+
+- **Every track analysed** in the background (one ffmpeg pass, cached): integrated
+  loudness, loudness range and true peak by ffmpeg's EBU R128 meter; sample peak, PLR,
+  short-term and momentary maximum, DC offset, clipping (with the times), silence at the
+  start and end, stereo correlation (overall, per band and over time), mono loss and width
+  per band, and the tonal balance in six bands and in third octaves.
+- **In the playlist:** integrated loudness and true peak, plus six little bars with each
+  band against the comparison: the reference tracks, or the playlist average if there are
+  none. On the display: the numbers of the current track (hover for the warnings) and a live
+  meter (short-term, momentary, correlation).
+- **A/B with references:** right-click a track, *Use as reference*, and `Tab` jumps between
+  what you are listening to and the reference, at the same point (`Shift+Tab`: next
+  reference). With *Same loudness for all* (on by default) every track plays at −18 LUFS, so
+  the louder one doesn't win just by being louder.
+- **Ways to listen:** mono, side only, left or right (`O` goes stereo → mono → side), and one
+  band alone (`1` to `6`, `0` for all).
+- **Notes at a point in time** (`N`): "02:13 snare too loud". They show on the seek bar,
+  next to the clipping marks.
+- **Report** (`Ctrl+R`): for the selected tracks, or the whole playlist. One HTML file that
+  opens in any browser and prints to PDF, in the colours of the theme: warnings first
+  ("true peak +0.3 dBTP", "clipping at 02:13", "phase inverted from 1:40 to 1:55",
+  "+3 dB of sub-bass compared with the references"), a summary table, the loudness of each
+  track against the rest, and per track the numbers, loudness and correlation over time,
+  the tonal curve over the comparison, stereo per band, how much Spotify, YouTube, Apple
+  Music and Tidal turn it up or down, and the notes. A CSV with the same numbers goes next
+  to it. The thresholds are guidance, not rules: some genres break them on purpose.
+
 ### Keys
 
 | Keys | |
@@ -133,6 +168,10 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 | `A` | A–B loop: set A, set B, off |
 | `Alt+L` | Library / playlist |
 | `Ctrl+Shift+K` | Big visuals |
+| `Ctrl+P` | Producer mode |
+| `Tab` · `Shift+Tab` | Producer: switch with the reference · next reference |
+| `O` · `1`–`6` · `0` | Producer: stereo / mono / side · one band alone · all bands |
+| `N` · `Ctrl+R` | Producer: note at this point · report |
 
 ## What you need
 

@@ -244,9 +244,15 @@ public partial class MainWindow
         var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         var plain = !ctrl && !alt;
 
+        if (ProducerKey(e.Key, e.KeyModifiers))
+        {
+            e.Handled = true;
+            return;
+        }
         var handled = true;
         switch (e.Key)
         {
+            case Key.P when ctrl && !alt && !shift: SetProducer(!Producer); break;
             case Key.Z when plain: Previous(); break;
             case Key.X when plain: Play(); break;
             case Key.C when plain: PauseToggle(); break;

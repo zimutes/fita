@@ -75,6 +75,7 @@ public sealed class AudioEngine : IDisposable
     private int _carryPos;
     private readonly Queue<int> _framesPerBuffer = new();
     private readonly EqProcessor _eq = new();
+    private readonly MonitorProcessor _monitor = new();
     private EqSettings _eqSettings = new();
     private float _gainL = 1, _gainR = 1;
     private float _limiter = 1;
@@ -205,6 +206,27 @@ public sealed class AudioEngine : IDisposable
 
     /// <summary>O último fim foi pedido com "parar depois desta" (e não por a lista ter acabado).</summary>
     public bool EndedByStopAfter { get { lock (_sync) return _endedByStopAfter; } }
+
+    /// <summary>Modo producer: como se ouve (estéreo, mono, lado, um canal).</summary>
+    public MonitorMode Listen { get => _monitor.Mode; set => _monitor.Mode = value; }
+
+    /// <summary>Modo producer: a banda que se ouve sozinha (0 a 5), ou −1.</summary>
+    public int Solo { get => _monitor.Solo; set => _monitor.Solo = value; }
+
+    /// <summary>Liga o medidor ao vivo (custa umas contas por amostra, por isso só no modo producer).</summary>
+    public bool MeterOn
+    {
+        get => _monitor.MeterOn;
+        set
+        {
+            if (value && !_monitor.MeterOn)
+                _monitor.ResetMeter();
+            _monitor.MeterOn = value;
+        }
+    }
+
+    /// <summary>O medidor: do que se ouve, depois do EQ e do modo de escuta, antes do volume.</summary>
+    public MeterReading Meter => _monitor.Reading;
 
     public void ConfigureEq(EqSettings settings)
     {
@@ -824,6 +846,7 @@ public sealed class AudioEngine : IDisposable
     private void Process(float[] block, int frames)
     {
         _eq.Process(block, frames);
+        _monitor.Process(block, frames, _rate);
 
         lock (_visLock)
         {

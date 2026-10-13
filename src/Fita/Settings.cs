@@ -69,6 +69,14 @@ public sealed class AppSettings
     public double? PlWindowY { get; set; }
     public double? PlWindowWidth { get; set; }
     public double? PlWindowHeight { get; set; }
+
+    /// <summary>Modo producer: análise na lista, medidores, A/B com referências, relatório.</summary>
+    public bool ProducerMode { get; set; }
+    /// <summary>No modo producer, tudo toca ao mesmo volume (−18 LUFS), para comparar sem o mais alto ganhar.</summary>
+    public bool ProducerMatch { get; set; } = true;
+    /// <summary>As faixas de referência (chaves das faixas).</summary>
+    public List<string> ProducerReferences { get; set; } = [];
+    public string ReportFolder { get; set; } = "";
 }
 
 public sealed class EqUserPreset
@@ -104,6 +112,7 @@ public static class SettingsStore
                 s.Eq ??= new EqSettings();
                 s.Eq.Sanitize();
                 s.EqPresets ??= [];
+                s.ProducerReferences ??= [];
                 s.Volume = Math.Clamp(double.IsFinite(s.Volume) ? s.Volume : 80, 0, 100);
                 s.Balance = Math.Clamp(double.IsFinite(s.Balance) ? s.Balance : 0, -1, 1);
                 s.WindowWidth = Math.Clamp(double.IsFinite(s.WindowWidth) ? s.WindowWidth : 500, 420, 1600);

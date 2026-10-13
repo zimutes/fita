@@ -98,6 +98,7 @@ public partial class MainWindow
         playback.Items.Add(Check(Loc.T("StopAfter"), _engine.StopAfterCurrent, ToggleStopAfter));
         playback.Items.Add(Check(Loc.T("ResumeOption"), _settings.Resume, () => _settings.Resume = !_settings.Resume));
         menu.Items.Add(playback);
+        menu.Items.Add(ProducerMenu());
 
         var output = new MenuItem { Header = Loc.T("Output") };
         output.Items.Add(Radio(Loc.T("DefaultDevice"), string.IsNullOrEmpty(_settings.OutputDevice), () => SetOutput("")));
@@ -293,6 +294,10 @@ public partial class MainWindow
             ("A", "K.Loop"),
             ("Alt+L", "K.Library"),
             ("Ctrl+Shift+K", "K.Vision"),
+            ("Ctrl+P", "K.Producer"),
+            ("Tab  ·  Shift+Tab", "K.AB"),
+            ("O  ·  1–6  ·  0", "K.Listen"),
+            ("N  ·  Ctrl+R", "K.NoteReport"),
         ];
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
         for (var i = 0; i < rows.Length; i++)

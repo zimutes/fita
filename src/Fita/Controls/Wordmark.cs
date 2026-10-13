@@ -43,6 +43,9 @@ public sealed class Wordmark : Control
         [new(772, 83), new(809, 211), new(734, 211)],
     ];
 
+    /// <summary>Os contornos, na grelha de 937 × 315 (o relatório desenha-os em SVG).</summary>
+    internal static IReadOnlyList<Point[]> Shapes => Outlines;
+
     protected override Size MeasureOverride(Size availableSize)
     {
         var h = double.IsNaN(Height) ? Math.Min(availableSize.Height, 13) : Height;

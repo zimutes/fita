@@ -164,13 +164,16 @@ public partial class MainWindow
     }
 
     private MenuFlyout TrackMenu(Track track) => Menu(
+    [
         (Loc.T("Play"), () => PlayTrack(track)),
         (Loc.T("PlayNext"), () => PlayNext(SelectedTracks())),
         ("-", null),
         (Loc.T("FileInfo"), () => ShowFileInfo(track)),
         (Loc.T("ShowInFolder"), () => ShowInFolder(track.Path)),
+        .. ProducerTrackItems(track),
         ("-", null),
-        (Loc.T("Remove"), RemoveSelected));
+        (Loc.T("Remove"), RemoveSelected),
+    ]);
 
     private List<Track> SelectedTracks() =>
         PlaylistBox.SelectedItems?.OfType<Track>().OrderBy(t => t.Number).ToList() ?? [];

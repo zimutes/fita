@@ -28,6 +28,11 @@ if (only == "--ondas")
     Ondas(output);
     return;
 }
+if (only == "--producer")
+{
+    ProducerRun(output, args.Skip(2).Select(Path.GetFullPath).ToArray());
+    return;
+}
 // Uma curva com forma, para o gráfico do EQ mostrar alguma coisa.
 Fita.Audio.EqPresets.Apply(App.Settings.Eq, Fita.Audio.EqPresets.BuiltIn.First(p => p.Name == "Rock"));
 foreach (var theme in Catalog.All)
@@ -46,6 +51,127 @@ foreach (var theme in Catalog.All)
     var file = Path.Combine(output, $"{theme.Key}.png");
     frame!.Save(file);
     Console.WriteLine($"{theme.Name}: {file} ({window.Bounds.Width}×{window.Bounds.Height})");
+    window.Close();
+    Pump();
+}
+if (only is null)
+{
+    // O modo producer, com análises inventadas na lista de demonstração (producer.png).
+    ThemeManager.Apply(Catalog.All[0]);
+    var window = new MainWindow(demo: true);
+    window.Show();
+    Pump();
+    window.DemoProducer();
+    window.DemoFrame(107);
+    window.DemoCover(Capa());
+    window.DemoWaveform();
+    Pump();
+    var file = Path.Combine(output, "producer.png");
+    window.CaptureRenderedFrame()!.Save(file);
+    Console.WriteLine($"Producer: {file}");
+    window.Close();
+    App.Settings.ProducerMode = false;
+    Pump();
+}
+
+// Modo producer de ponta a ponta, com ficheiros verdadeiros: junta-os à lista, espera pelas
+// análises (ffmpeg), escreve o relatório (relatorio.html e .csv), fotografa a janela e mostra os
+// números de cada faixa na consola.
+static void ProducerRun(string output, string[] files)
+{
+    ThemeManager.Apply(Catalog.All[0]);
+    var window = new MainWindow(demo: true);
+    window.Show();
+    Pump();
+    void Wait(Task task, int seconds)
+    {
+        var until = DateTime.Now.AddSeconds(seconds);
+        while (!task.IsCompleted && DateTime.Now < until)
+        {
+            Pump();
+            Thread.Sleep(20);
+        }
+        if (!task.IsCompleted)
+            throw new TimeoutException();
+        task.GetAwaiter().GetResult();
+    }
+    Wait(window.AddPathsAsync(files, play: false), 30);
+    window.ProducerPending();
+    var tracks = window.PlaylistTracks.Where(t => files.Contains(t.Path, StringComparer.OrdinalIgnoreCase)).ToList();
+    var started = DateTime.Now;
+    var report = Path.Combine(output, "relatorio.html");
+    Wait(window.WriteReportAsync(tracks, report), 300);
+    Console.WriteLine($"análise: {(DateTime.Now - started).TotalSeconds:0.0} s para {tracks.Count} faixas");
+    for (var i = 0; i < 20; i++)
+    {
+        Pump();
+        Thread.Sleep(20);
+    }
+    window.DemoFrame(30);
+    Pump();
+    window.CaptureRenderedFrame()!.Save(Path.Combine(output, "producer.png"));
+    foreach (var t in tracks)
+    {
+        var a = t.Analysis!;
+        Console.WriteLine($"{Path.GetFileName(t.Path)}: I {a.Integrated:0.0} (nosso {a.OwnIntegrated:0.0}) LRA {a.Range:0.0} TP {a.TruePeak:0.0} "
+            + $"pico {a.SamplePeak:0.0} corr {a.Correlation:0.00} sat {a.Clips} graves-corr {string.Join('/', a.BandCorrelation.Take(2).Select(c => c.ToString("0.00")))}");
+        foreach (var f in Fita.Producer.Findings.For(a, t.BandDeltas))
+            Console.WriteLine($"    {f.Severity}: {f.Text}");
+    }
+    Console.WriteLine(report);
+
+    // A/B: a primeira faixa fica de referência; a tocar a segunda, Tab vai para a referência no
+    // mesmo ponto e volta, as duas com o volume igualado a −18 LUFS.
+    var falhas = 0;
+    void Conferir(string o, bool ok)
+    {
+        if (!ok) falhas++;
+        Console.WriteLine($"{(ok ? "ok   " : "FALHA")} {o}");
+    }
+    void Esperar(int ms)
+    {
+        for (var i = 0; i < ms / 20; i++)
+        {
+            Pump();
+            Thread.Sleep(20);
+        }
+    }
+    void Tecla(Avalonia.Input.Key k, Avalonia.Input.PhysicalKey f, Avalonia.Input.RawInputModifiers mods = Avalonia.Input.RawInputModifiers.None)
+    {
+        window.KeyPress(k, mods, f, null);
+        window.KeyRelease(k, mods, f, null);
+        Esperar(300);
+    }
+    float Esperado(Fita.Library.Track t) => (float)Math.Clamp(Math.Pow(10, (-18 - t.Analysis!.Integrated) / 20), 0.05, 4);
+    var (referencia, mistura) = (tracks[0], tracks[1]);
+    window.DemoReference(referencia);
+    window.FindControl<Button>("PlayButton")!.Focus();
+    window.DemoPlay(mistura, 5);
+    Esperar(500);
+    var e = window.DemoEngine;
+    Conferir($"a tocar a mistura com o ganho igualado ({e.Snapshot.Segment?.Item.Gain:0.000} ≈ {Esperado(mistura):0.000})",
+        e.Snapshot.Segment?.Item.Tag == mistura && Math.Abs(e.Snapshot.Segment!.Item.Gain - Esperado(mistura)) < 0.001);
+    var antes = window.DemoEngine.Snapshot.Position;
+    window.KeyPress(Avalonia.Input.Key.Tab, Avalonia.Input.RawInputModifiers.None, Avalonia.Input.PhysicalKey.Tab, null);
+    window.KeyRelease(Avalonia.Input.Key.Tab, Avalonia.Input.RawInputModifiers.None, Avalonia.Input.PhysicalKey.Tab, null);
+    Pump();
+    e = window.DemoEngine;
+    Conferir($"Tab vai para a referência no mesmo ponto ({antes:0.00} → {e.Snapshot.Position:0.00} s), igualada ({e.Snapshot.Segment?.Item.Gain:0.000} ≈ {Esperado(referencia):0.000})",
+        e.Snapshot.Segment?.Item.Tag == referencia && Math.Abs(e.Snapshot.Position - antes) < 0.25 && Math.Abs(e.Snapshot.Segment!.Item.Gain - Esperado(referencia)) < 0.001);
+    Esperar(300);
+    Tecla(Avalonia.Input.Key.Tab, Avalonia.Input.PhysicalKey.Tab);
+    Conferir("Tab outra vez volta à mistura", window.DemoEngine.Snapshot.Segment?.Item.Tag == mistura);
+    Tecla(Avalonia.Input.Key.O, Avalonia.Input.PhysicalKey.O);
+    Conferir("O passa a mono", window.DemoEngine.Listen == Fita.Audio.MonitorMode.Mono);
+    Tecla(Avalonia.Input.Key.O, Avalonia.Input.PhysicalKey.O);
+    Conferir("O outra vez passa ao lado", window.DemoEngine.Listen == Fita.Audio.MonitorMode.Side);
+    Tecla(Avalonia.Input.Key.D2, Avalonia.Input.PhysicalKey.Digit2);
+    Conferir("2 deixa só os graves", window.DemoEngine.Solo == 1);
+    Tecla(Avalonia.Input.Key.D0, Avalonia.Input.PhysicalKey.Digit0);
+    Conferir("0 volta a todas as bandas", window.DemoEngine.Solo == -1);
+    Tecla(Avalonia.Input.Key.P, Avalonia.Input.PhysicalKey.P, Avalonia.Input.RawInputModifiers.Control);
+    Conferir("Ctrl+P desliga o modo producer e o estéreo volta", window.DemoEngine.Listen == Fita.Audio.MonitorMode.Stereo);
+    Console.WriteLine(falhas == 0 ? "tudo certo" : $"{falhas} falha(s)");
     window.Close();
     Pump();
 }

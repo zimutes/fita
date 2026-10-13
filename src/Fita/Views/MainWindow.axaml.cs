@@ -83,6 +83,7 @@ public partial class MainWindow : Window
             LoadDemo();
         else
             LoadPlaylist();
+        SetupProducer();
 
         _slowTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(250), DispatcherPriority.Background, (_, _) => SlowTick());
         _slowTimer.Start();
@@ -273,6 +274,9 @@ public partial class MainWindow : Window
             _ => double.NaN,
         };
         var gain = double.IsNaN(db) ? 1f : (float)Math.Clamp(Math.Pow(10, db / 20), 0.05, 4);
+        // No modo producer, com o volume igualado, a medida da análise passa à frente do ReplayGain.
+        if (MatchGain(track) is { } matched)
+            gain = matched;
         return new PlayItem(track, track.Path, gain, track.Start, track.End);
     }
 
@@ -584,6 +588,7 @@ public partial class MainWindow : Window
             ShowTrackText();
             ShowCover(track);
             ShowWaveform(track);
+            ShowProducerMarks();
             LoadLyrics(track);
             if (track is not null && snap.State == PlayState.Playing)
                 _vision?.ShowCaption(track.Display);
@@ -635,6 +640,8 @@ public partial class MainWindow : Window
             status = Loc.T("Paused");
         else if (snap.State == PlayState.Stopped)
             status = track is null ? Loc.T("Idle") : Loc.T("Stopped");
+        else if (Producer)
+            status = ProducerStatus();
         else
             status = LyricLine(track, position) ?? AlbumLine(track);
         if (StatusText.Text != status)
@@ -691,7 +698,8 @@ public partial class MainWindow : Window
         MiniMarquee.Text = track.Display;
         var extras = PlaybackExtras();
         // À frente, para não ficar cortado quando a linha não cabe.
-        InfoText.Text = extras.Length == 0 ? track.Info : track.Info.Length == 0 ? extras : $"{extras} · {track.Info}";
+        InfoText.Text = Producer ? ProducerInfo(track)
+            : extras.Length == 0 ? track.Info : track.Info.Length == 0 ? extras : $"{extras} · {track.Info}";
         Title = $"{track.Display} · Fita";
     }
 
@@ -793,6 +801,7 @@ public partial class MainWindow : Window
         _engine.Dispose();
         _tags.Dispose();
         _loudness.Dispose();
+        _analysisQueue?.Dispose();
         _library?.Dispose();
         StopSystemIntegration();
     }

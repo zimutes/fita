@@ -190,12 +190,17 @@
                 <ListBox.ItemTemplate>
                   <DataTemplate x:DataType="lib:Track">
                     <Grid Classes="row" Classes.current="{Binding IsCurrent}" Classes.failed="{Binding Failed}"
-                          ColumnDefinitions="38,*,Auto" Background="Transparent">
+                          Classes.reference="{Binding IsReference}" ColumnDefinitions="38,*,Auto,Auto" Background="Transparent">
                       <TextBlock Classes="num" Text="{Binding Number}" HorizontalAlignment="Right" Margin="0,0,10,0" />
                       <TextBlock Grid.Column="1" Classes="title" Text="{Binding Display}" TextTrimming="CharacterEllipsis"
                                  VerticalAlignment="Center" />
-                      <TextBlock Grid.Column="2" Classes="dur" Text="{Binding DurationText}" Margin="10,0,0,0" />
-                      <Border Grid.ColumnSpan="3" Height="2" VerticalAlignment="Top" Margin="0,-1,0,0"
+                      <!-- Modo producer: balanço tonal em barrinhas, volume integrado e pico real -->
+                      <StackPanel Grid.Column="2" Classes="prod" Orientation="Horizontal" Spacing="6" Margin="8,0,0,0">
+                        <ctl:BandBars Deltas="{Binding BandDeltas}" VerticalAlignment="Center" />
+                        <TextBlock Classes="dur" Text="{Binding ProducerText}" Width="78" TextAlignment="Right" />
+                      </StackPanel>
+                      <TextBlock Grid.Column="3" Classes="dur" Text="{Binding DurationText}" Margin="10,0,0,0" />
+                      <Border Grid.ColumnSpan="4" Height="2" VerticalAlignment="Top" Margin="0,-1,0,0"
                               Background="{DynamicResource Accent}" IsVisible="{Binding DropTarget}" />
                     </Grid>
                   </DataTemplate>

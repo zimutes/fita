@@ -43,6 +43,12 @@ public sealed class LevelSlider : Control
     /// <summary>Na barra de posição: a forma de onda da faixa (0 a 1), desenhada no lugar da calha.</summary>
     public static readonly StyledProperty<float[]?> WaveformProperty =
         AvaloniaProperty.Register<LevelSlider, float[]?>(nameof(Waveform));
+    /// <summary>Na barra de posição, no modo producer: onde satura (frações de 0 a 1), marcado em cima.</summary>
+    public static readonly StyledProperty<IReadOnlyList<double>?> ClipMarksProperty =
+        AvaloniaProperty.Register<LevelSlider, IReadOnlyList<double>?>(nameof(ClipMarks));
+    /// <summary>Na barra de posição, no modo producer: onde há notas, marcado em baixo.</summary>
+    public static readonly StyledProperty<IReadOnlyList<double>?> NoteMarksProperty =
+        AvaloniaProperty.Register<LevelSlider, IReadOnlyList<double>?>(nameof(NoteMarks));
     /// <summary>Na horizontal: margem em cima e em baixo que apanha o rato mas não se desenha.</summary>
     public static readonly StyledProperty<double> HitPaddingProperty =
         AvaloniaProperty.Register<LevelSlider, double>(nameof(HitPadding));
@@ -51,7 +57,7 @@ public sealed class LevelSlider : Control
     {
         AffectsRender<LevelSlider>(MinimumProperty, MaximumProperty, ValueProperty, OriginProperty,
             OrientationProperty, IsEnabledProperty, IsSeekBarProperty, WaveformProperty, MarkAProperty, MarkBProperty,
-            HitPaddingProperty);
+            HitPaddingProperty, ClipMarksProperty, NoteMarksProperty);
         FocusableProperty.OverrideDefaultValue<LevelSlider>(false);
     }
 
@@ -74,6 +80,8 @@ public sealed class LevelSlider : Control
     public bool IsSeekBar { get => GetValue(IsSeekBarProperty); set => SetValue(IsSeekBarProperty, value); }
     public float[]? Waveform { get => GetValue(WaveformProperty); set => SetValue(WaveformProperty, value); }
     public double HitPadding { get => GetValue(HitPaddingProperty); set => SetValue(HitPaddingProperty, value); }
+    public IReadOnlyList<double>? ClipMarks { get => GetValue(ClipMarksProperty); set => SetValue(ClipMarksProperty, value); }
+    public IReadOnlyList<double>? NoteMarks { get => GetValue(NoteMarksProperty); set => SetValue(NoteMarksProperty, value); }
     public double? MarkA { get => GetValue(MarkAProperty); set => SetValue(MarkAProperty, value); }
     public double? MarkB { get => GetValue(MarkBProperty); set => SetValue(MarkBProperty, value); }
 
@@ -311,7 +319,28 @@ public sealed class LevelSlider : Control
         finally
         {
             if (IsSeekBar && !Vertical && IsEnabled)
+            {
                 DrawLoopMarks(context, t, w, h);
+                DrawTicks(context, t, w, h);
+            }
+        }
+    }
+
+    /// <summary>Saturações (traços curtos em cima, na cor de alerta) e notas (em baixo, na de destaque).</summary>
+    private void DrawTicks(DrawingContext context, ThemeDef t, double w, double h)
+    {
+        var length = w - 2 * Pad;
+        if (ClipMarks is { Count: > 0 } clips)
+        {
+            var brush = new SolidColorBrush(t.Brand);
+            foreach (var f in clips)
+                context.FillRectangle(brush, new Rect(Pad + Math.Clamp(f, 0, 1) * length - 1, -_slop, 2, _slop + 3));
+        }
+        if (NoteMarks is { Count: > 0 } notes)
+        {
+            var brush = new SolidColorBrush(t.Accent);
+            foreach (var f in notes)
+                context.FillRectangle(brush, new Rect(Pad + Math.Clamp(f, 0, 1) * length - 1.5, h - 3, 3, _slop + 3));
         }
     }
 

@@ -276,6 +276,17 @@
     <Setter Property="Margin" Value="18,0,0,0" />
     <Setter Property="Opacity" Value="0.85" />
   </Style>
+  <!-- Modo producer: a coluna da análise só aparece com a lista em modo producer -->
+  <Style Selector="Grid.row StackPanel.prod">
+    <Setter Property="IsVisible" Value="False" />
+  </Style>
+  <Style Selector="ListBox.producer Grid.row StackPanel.prod">
+    <Setter Property="IsVisible" Value="True" />
+  </Style>
+  <Style Selector="Grid.row.reference TextBlock.title">
+    <Setter Property="Foreground" Value="{DynamicResource Accent}" />
+    <Setter Property="FontStyle" Value="Italic" />
+  </Style>
   <Style Selector="Grid.row.failed TextBlock">
     <Setter Property="TextDecorations" Value="Strikethrough" />
     <Setter Property="Opacity" Value="0.45" />

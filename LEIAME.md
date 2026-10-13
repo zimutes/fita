@@ -111,6 +111,42 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   natural).
 - **Inglês ou português.**
 
+### Modo producer
+
+Para conferir misturas e masters com referências, sem a janela crescer (`Ctrl+P`, ou
+*Producer* no menu):
+
+<p align="center">
+  <img src="docs/producer.png" width="400" alt="A Fita em modo producer: volume e pico real no mostrador, saturações marcadas na barra de posição, e os números e as barrinhas do balanço tonal de cada faixa na lista">
+</p>
+
+- **Cada faixa analisada** em segundo plano (uma passagem do ffmpeg, guardada em cache):
+  volume integrado, gama de volume e pico real pelo medidor EBU R128 do ffmpeg; pico de
+  amostra, PLR, máximos de curta duração e momentâneo, desvio DC, saturações (com os
+  tempos), silêncio no início e no fim, correlação estéreo (no total, por banda e ao longo do
+  tempo), perda em mono e largura por banda, e o balanço tonal em seis bandas e em terços de
+  oitava.
+- **Na lista:** volume integrado e pico real, e seis barrinhas com cada banda em relação à
+  comparação: as faixas de referência, ou a média da lista se não houver nenhuma. No
+  mostrador: os números da faixa atual (com o rato por cima, os avisos) e um medidor ao vivo
+  (curta duração, momentâneo, correlação).
+- **A/B com referências:** botão direito numa faixa, *Usar como referência*, e o `Tab` salta
+  entre o que está a ouvir e a referência, no mesmo ponto (`Shift+Tab`: a referência
+  seguinte). Com *Tudo ao mesmo volume* (ligado por omissão) todas as faixas tocam a
+  −18 LUFS, para a mais alta não ganhar só por ser mais alta.
+- **Maneiras de ouvir:** mono, só o lado, só a esquerda ou a direita (o `O` vai de estéreo a
+  mono e a lado), e uma banda sozinha (`1` a `6`, `0` para todas).
+- **Notas num ponto da faixa** (`N`): "02:13 tarola alta demais". Aparecem na barra de
+  posição, ao lado das marcas das saturações.
+- **Relatório** (`Ctrl+R`): das faixas escolhidas, ou da lista toda. Um ficheiro HTML que abre
+  em qualquer navegador e imprime em PDF, com as cores do tema: primeiro os avisos ("pico
+  real +0,3 dBTP", "satura aos 02:13", "fase invertida entre 1:40 e 1:55", "+3 dB de
+  subgraves em relação às referências"), depois uma tabela de resumo, o volume de cada faixa
+  em relação às outras e, por faixa, os números, o volume e a correlação ao longo do tempo, a
+  curva tonal por cima da de comparação, o estéreo por banda, quanto o Spotify, o YouTube, o
+  Apple Music e o Tidal a sobem ou baixam, e as notas. Ao lado fica um CSV com os mesmos
+  números. Os limiares são orientação e não regras: há géneros que os quebram de propósito.
+
 ### Teclas
 
 | Teclas | |
@@ -132,6 +168,10 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 | `A` | Ciclo A–B: marcar o A, o B, desligar |
 | `Alt+L` | Biblioteca / lista |
 | `Ctrl+Shift+K` | Visualização grande |
+| `Ctrl+P` | Modo producer |
+| `Tab` · `Shift+Tab` | Producer: trocar com a referência · referência seguinte |
+| `O` · `1`–`6` · `0` | Producer: estéreo / mono / lado · uma banda sozinha · todas |
+| `N` · `Ctrl+R` | Producer: nota neste ponto · relatório |
 
 ## O que é preciso
 
