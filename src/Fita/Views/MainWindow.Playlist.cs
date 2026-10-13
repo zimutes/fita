@@ -47,14 +47,33 @@ public partial class MainWindow
             }
         };
 
-        SearchBox.TextChanged += (_, _) => ApplyFilter();
+        SearchBox.TextChanged += (_, _) =>
+        {
+            if (_libraryMode)
+                RefreshLibraryRows();
+            else
+                ApplyFilter();
+        };
         SearchBox.KeyDown += (_, e) =>
         {
             switch (e.Key)
             {
+                case Key.Enter when _libraryMode:
+                    if ((LibraryBox.SelectedItem as LibraryRow ?? LibraryBox.Items.OfType<LibraryRow>().FirstOrDefault()) is { } row)
+                        PlayFromLibrary(row, replace: false);
+                    e.Handled = true;
+                    break;
                 case Key.Enter:
                     if (PlaylistBox.ItemCount > 0 && PlaylistBox.Items[0] is Track first)
                         PlayTrack(PlaylistBox.SelectedItem as Track ?? first);
+                    e.Handled = true;
+                    break;
+                case Key.Down when _libraryMode:
+                    if (LibraryBox.ItemCount > 0)
+                    {
+                        LibraryBox.SelectedIndex = Math.Max(0, LibraryBox.SelectedIndex);
+                        LibraryBox.ContainerFromIndex(LibraryBox.SelectedIndex)?.Focus();
+                    }
                     e.Handled = true;
                     break;
                 case Key.Escape:
@@ -245,6 +264,13 @@ public partial class MainWindow
 
     private void UpdateFooter()
     {
+        if (_libraryMode)
+        {
+            FooterText.Text = LibraryFooter();
+            if (_shownTrack is not null)
+                ShowTrackText();
+            return;
+        }
         var count = _playlist.Items.Count;
         var text = Loc.Count(count);
         var total = _playlist.TotalDuration;

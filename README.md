@@ -66,6 +66,11 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 - **Playlist:** drag files, folders or M3U/PLS lists in; reorder by dragging; search as you
   type (`J`); sort by title, artist, album, file, folder or length; remove duplicates or
   missing files; save as M3U8 or PLS. It remembers the list, the track and where you stopped.
+- **A library in the same space:** the *LIB* button (or `Alt+L`) swaps the playlist for
+  your music folders, album by album (grouped by folder, so compilations stay together).
+  A click opens an album, a double-click plays it (it joins the end of the playlist), the
+  right click can play it instead of the playlist, and `J` searches the whole library,
+  accents or not. Fita keeps an eye on the folders and only re-reads files that changed.
 - **Classic display:** time (click for remaining), scrolling title, format line, spectrum or
   oscilloscope (click to switch), and the little status lights: EQ, shuffle, repeat,
   ReplayGain, stop-after-current, limiter. The album art (from the file, or a `cover.jpg` /
@@ -116,6 +121,7 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 | `Ctrl+V` | Stop after the current track |
 | `Enter` · `Del` · `Alt+↑↓` | Play · remove · move the selected tracks |
 | `A` | A–B loop: set A, set B, off |
+| `Alt+L` | Library / playlist |
 
 ## What you need
 

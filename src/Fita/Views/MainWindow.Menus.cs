@@ -288,6 +288,7 @@ public partial class MainWindow
             ("Del", "K.Delete"),
             ("Alt+↑  Alt+↓", "K.Move"),
             ("A", "K.Loop"),
+            ("Alt+L", "K.Library"),
         ];
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
         for (var i = 0; i < rows.Length; i++)

@@ -63,6 +63,11 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   arrastar; procure enquanto escreve (`J`); ordene por título, artista, álbum, ficheiro, pasta
   ou duração; tire repetidas ou ficheiros que já não existem; guarde em M3U8 ou PLS. Lembra-se
   da lista, da faixa e de onde parou.
+- **Uma biblioteca no mesmo espaço:** o botão *BIB* (ou `Alt+L`) troca a lista pelas suas
+  pastas de música, disco a disco (agrupados por pasta, para as compilações não se partirem).
+  Um clique abre o disco, duplo clique toca-o (junta-se ao fim da lista), o botão direito
+  pode tocá-lo em vez da lista, e o `J` procura na biblioteca inteira, com ou sem acentos. A
+  Fita fica atenta às pastas e só volta a ler os ficheiros que mudaram.
 - **Mostrador clássico:** tempo (clique para o que falta), título a correr, linha do formato,
   espectro ou osciloscópio (clique para trocar) e as luzinhas de estado: EQ, aleatório,
   repetir, ReplayGain, parar depois desta, limitador. A capa (a do ficheiro, ou um `cover.jpg`
@@ -114,6 +119,7 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 | `Ctrl+V` | Parar depois desta faixa |
 | `Enter` · `Del` · `Alt+↑↓` | Tocar · tirar · mudar de lugar as faixas selecionadas |
 | `A` | Ciclo A–B: marcar o A, o B, desligar |
+| `Alt+L` | Biblioteca / lista |
 
 ## O que é preciso
 

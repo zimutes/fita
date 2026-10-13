@@ -250,12 +250,13 @@ public partial class MainWindow
                 SearchBox.Focus();
                 SearchBox.SelectAll();
                 break;
-            case Key.L when shift || ctrl: _ = AddFolderAsync(); break;
+            case Key.L when (shift || ctrl) && !alt: _ = AddFolderAsync(); break;
             case Key.L when plain: _ = AddFilesAsync(play: false); break;
             case Key.S when plain: SetShuffle(!_settings.Shuffle); break;
             case Key.R when plain: CycleRepeat(); break;
             case Key.G when alt: EqToggle.IsChecked = EqToggle.IsChecked != true; break;
             case Key.E when alt: PlToggle.IsChecked = PlToggle.IsChecked != true; break;
+            case Key.L when alt: SetLibraryMode(!_libraryMode); break;
             case Key.W when ctrl: ToggleCompact(); break;
             case Key.T when ctrl: ToggleTimeMode(); break;
             case Key.T when plain: NextTheme(); break;

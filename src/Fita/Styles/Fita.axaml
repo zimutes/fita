@@ -265,6 +265,13 @@
   <Style Selector="ListBoxItem:selected Grid.row.current TextBlock">
     <Setter Property="Foreground" Value="{DynamicResource SelectionFg}" />
   </Style>
+  <Style Selector="Grid.row.album TextBlock.title">
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Grid.row.track TextBlock.title">
+    <Setter Property="Margin" Value="18,0,0,0" />
+    <Setter Property="Opacity" Value="0.85" />
+  </Style>
   <Style Selector="Grid.row.failed TextBlock">
     <Setter Property="TextDecorations" Value="Strikethrough" />
     <Setter Property="Opacity" Value="0.45" />

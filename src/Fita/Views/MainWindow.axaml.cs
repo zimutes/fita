@@ -75,6 +75,7 @@ public partial class MainWindow : Window
 
         SetupPlayback();
         SetupPlaylist();
+        SetupLibrary();
         SetupEq();
         SetupWindow();
 
@@ -713,6 +714,7 @@ public partial class MainWindow : Window
         _engine.Dispose();
         _tags.Dispose();
         _loudness.Dispose();
+        _library?.Dispose();
         StopSystemIntegration();
     }
 

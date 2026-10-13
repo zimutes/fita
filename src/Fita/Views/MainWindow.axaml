@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ctl="using:Fita.Controls"
         xmlns:lib="using:Fita.Library"
+        xmlns:views="using:Fita.Views"
         x:Class="Fita.Views.MainWindow"
         Title="Fita"
         Icon="avares://Fita/Assets/fita.ico"
@@ -165,14 +166,18 @@
       <Border Name="PlPanel" Classes="panel" Margin="10,8,10,10" Padding="10">
         <DockPanel>
           <TextBox Name="SearchBox" DockPanel.Dock="Top" Classes="search" Watermark="{DynamicResource L.Search}" Margin="0,0,0,8" />
-          <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="4" Margin="0,8,0,0">
-            <Button Name="AddButton" Classes="small" Content="{DynamicResource LU.Add}" />
-            <Button Name="RemoveButton" Grid.Column="1" Classes="small" Content="{DynamicResource LU.Remove}" />
-            <Button Name="SortButton" Grid.Column="2" Classes="small" Content="{DynamicResource LU.Sort}" />
-            <Button Name="ListButton" Grid.Column="3" Classes="small" Content="{DynamicResource LU.List}" />
-            <TextBlock Name="FooterText" Grid.Column="4" Classes="muted" FontFamily="{DynamicResource FontMono}" FontSize="10.5"
+          <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <Button Name="AddButton" Classes="small" Content="{DynamicResource LU.Add}" />
+              <Button Name="RemoveButton" Classes="small" Content="{DynamicResource LU.Remove}" />
+              <Button Name="SortButton" Classes="small" Content="{DynamicResource LU.Sort}" />
+              <Button Name="ListButton" Classes="small" Content="{DynamicResource LU.List}" />
+              <Button Name="FoldersButton" Classes="small" Content="{DynamicResource LU.Folders}" IsVisible="False" />
+              <ToggleButton Name="LibToggle" Classes="small" Content="{DynamicResource LU.Lib}" ToolTip.Tip="{DynamicResource L.LibTip}" />
+            </StackPanel>
+            <TextBlock Name="FooterText" Grid.Column="1" Classes="muted" FontFamily="{DynamicResource FontMono}" FontSize="10.5"
                        HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="8,0" />
-            <Border Name="ResizeGrip" Grid.Column="5" Width="16" Height="16" Background="Transparent" Cursor="BottomRightCorner"
+            <Border Name="ResizeGrip" Grid.Column="2" Width="16" Height="16" Background="Transparent" Cursor="BottomRightCorner"
                     VerticalAlignment="Bottom" Margin="0,0,-4,-4">
               <ctl:Glyph Kind="Grip" Foreground="{DynamicResource TextMuted}" />
             </Border>
@@ -190,6 +195,17 @@
                       <TextBlock Grid.Column="2" Classes="dur" Text="{Binding DurationText}" Margin="10,0,0,0" />
                       <Border Grid.ColumnSpan="3" Height="2" VerticalAlignment="Top" Margin="0,-1,0,0"
                               Background="{DynamicResource Accent}" IsVisible="{Binding DropTarget}" />
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <ListBox Name="LibraryBox" Classes="playlist" SelectionMode="Single" IsVisible="False">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="views:LibraryRow">
+                    <Grid Classes="row" Classes.album="{Binding IsAlbum}" Classes.track="{Binding IsTrack}"
+                          ColumnDefinitions="*,Auto" Background="Transparent">
+                      <TextBlock Classes="title" Text="{Binding Text}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Classes="dur" Text="{Binding Detail}" Margin="10,0,0,0" />
                     </Grid>
                   </DataTemplate>
                 </ListBox.ItemTemplate>

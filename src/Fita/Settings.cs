@@ -54,6 +54,10 @@ public sealed class AppSettings
     /// <summary>Continuar a faixa onde ficou da última vez.</summary>
     public bool Resume { get; set; } = true;
     public string LastFolder { get; set; } = "";
+    /// <summary>As pastas de música da biblioteca.</summary>
+    public List<string> LibraryFolders { get; set; } = [];
+    /// <summary>O painel de baixo mostra a biblioteca em vez da lista.</summary>
+    public bool LibraryMode { get; set; }
 }
 
 public sealed class EqUserPreset

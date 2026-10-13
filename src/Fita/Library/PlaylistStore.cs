@@ -100,7 +100,7 @@ public static class PlaylistStore
 
     private static double? Nan(double v) => double.IsNaN(v) ? null : v;
 
-    private static Entry ToEntry(Track t) => new()
+    public static Entry ToEntry(Track t) => new()
     {
         Path = t.Path, Start = t.Start > 0 ? t.Start : null, End = t.End > 0 ? t.End : null, Title = t.Title, Artist = t.Artist, Album = t.Album, TrackNumber = t.TrackNumber,
         Year = t.Year, Genre = t.Genre, Duration = t.Duration, Bitrate = t.Bitrate, SampleRate = t.SampleRate,
@@ -109,7 +109,7 @@ public static class PlaylistStore
         Size = t.FileSize, Modified = t.Modified, Loaded = t.MetadataLoaded, Scanned = t.LoudnessScanned,
     };
 
-    private static Track FromEntry(Entry e)
+    public static Track FromEntry(Entry e)
     {
         var t = new Track(e.Path)
         {
