@@ -6,7 +6,7 @@ namespace Fita.Audio;
 /// Saída de som por OpenAL Soft, em fila de buffers curtos (streaming). Só é usada pela thread
 /// de saída do <see cref="AudioEngine"/>, exceto <see cref="ListDevices"/>.
 /// </summary>
-internal sealed unsafe class AlOutput : IDisposable
+internal sealed unsafe class AlOutput : IAudioOutput
 {
     public const int BufferCount = 6;
 

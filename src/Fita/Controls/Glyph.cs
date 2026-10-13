@@ -5,7 +5,7 @@ using Avalonia.Media;
 
 namespace Fita.Controls;
 
-public enum GlyphKind { Play, Pause, Stop, Prev, Next, Eject, Menu, Compact, Minimize, Close, Logo, Grip }
+public enum GlyphKind { Play, Pause, Stop, Prev, Next, Eject, Menu, Compact, Minimize, Close, Logo, Grip, Shuffle, Repeat, RepeatOne }
 
 /// <summary>Ícones desenhados (os dos botões de transporte e da barra de título), na cor do texto.</summary>
 public sealed class Glyph : Control
@@ -111,6 +111,29 @@ public sealed class Glyph : Control
                 context.DrawGeometry(null, thin, foot);
                 break;
             }
+            case GlyphKind.Shuffle:
+                // Dois caminhos que se cruzam, cada um com a sua ponta (no telemóvel, onde não há espaço para a palavra).
+                context.DrawLine(pen, P(1.8, 4.5), P(4.6, 4.5));
+                context.DrawLine(pen, P(4.6, 4.5), P(10, 11.5));
+                context.DrawLine(pen, P(10, 11.5), P(12.4, 11.5));
+                context.DrawLine(pen, P(1.8, 11.5), P(4.6, 11.5));
+                context.DrawLine(pen, P(4.6, 11.5), P(10, 4.5));
+                context.DrawLine(pen, P(10, 4.5), P(12.4, 4.5));
+                Poly(P(11.6, 2.4), P(14.6, 4.5), P(11.6, 6.6));
+                Poly(P(11.6, 9.4), P(14.6, 11.5), P(11.6, 13.6));
+                break;
+            case GlyphKind.Repeat:
+            case GlyphKind.RepeatOne:
+                // Um laço com duas pontas; com um traço ao meio, repete só esta.
+                context.DrawLine(pen, P(2.8, 8.4), P(2.8, 5));
+                context.DrawLine(pen, P(2.8, 5), P(11.6, 5));
+                context.DrawLine(pen, P(13.2, 7.6), P(13.2, 11));
+                context.DrawLine(pen, P(13.2, 11), P(4.4, 11));
+                Poly(P(11, 2.9), P(14, 5), P(11, 7.1));
+                Poly(P(5, 8.9), P(2, 11), P(5, 13.1));
+                if (Kind == GlyphKind.RepeatOne)
+                    context.DrawLine(pen, P(8, 6.8), P(8, 9.2));
+                break;
             case GlyphKind.Grip:
             {
                 var dot = Math.Max(1, 1.2 * s);

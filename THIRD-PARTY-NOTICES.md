@@ -18,4 +18,10 @@ own license:
 - **TagLib#** is used as an unmodified library (`TagLibSharp.dll`).
 - **Fonts:** the static weights were cut from the variable fonts with fontTools and their
   names normalised; the license of each family is next to it in `src/Fita/Assets/Fonts/*/OFL.txt`.
-- **FFmpeg** is not included. Fita runs the `ffmpeg` you install, as a separate program.
+- **FFmpeg** is not included in the desktop versions: Fita runs the `ffmpeg` you install, as a
+  separate program. The **Android** app carries `ffmpeg` and `ffprobe` 8.0 (LGPL-2.1-or-later,
+  no GPL or non-free parts), unmodified, as separate programs (packed as `libffmpeg.so` and
+  `libffprobe.so` so Android extracts them). They are built from the official source
+  (<https://ffmpeg.org/releases/ffmpeg-8.0.tar.xz>) by `tools/android/ffmpeg-android.sh`,
+  which has the exact configuration; the license text is
+  [COPYING.LGPLv2.1](https://github.com/FFmpeg/FFmpeg/blob/master/COPYING.LGPLv2.1).

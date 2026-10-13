@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    A Fita no Android. O código é o mesmo do desktop (motor, lista, EQ, temas, controlos,
+    análise), ligado daqui; só a vista, a saída de som (AudioTrack), o serviço de reprodução e
+    o acesso à música são próprios. O assembly chama-se Fita, como no desktop, para os recursos
+    avares://Fita/... (tipos de letra, ícone) servirem aos dois.
+
+    Fora da solução (Fita.slnx), para a CI não precisar do workload do Android:
+      dotnet build src/Fita.Android -c Release
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Fita</AssemblyName>
+    <RootNamespace>Fita</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+    <ApplicationId>org.zimutek.fita</ApplicationId>
+    <ApplicationTitle>Fita</ApplicationTitle>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <RuntimeIdentifiers>android-arm64;android-x64</RuntimeIdentifiers>
+    <!-- O ffmpeg vai como "biblioteca" nativa: tem de ficar extraído no disco para se poder correr. -->
+    <AndroidUseLegacyPackaging>true</AndroidUseLegacyPackaging>
+    <!-- A APK leva tudo (também em Debug): instala-se com adb install, sem o Fast Deployment. -->
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <!-- Na Release só se apara o que é da plataforma; as definições e as listas gravam-se com
+         System.Text.Json por reflexão, por isso fica ligada. -->
+    <TrimMode>partial</TrimMode>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+
+    <Product>Fita</Product>
+    <Company>zimutek</Company>
+    <Authors>zimutek</Authors>
+    <Copyright>© zimutek</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Fita\**\*.cs"
+             Exclude="..\Fita\obj\**;..\Fita\bin\**;..\Fita\Program.cs;..\Fita\SelfTest.cs;..\Fita\Views\**;..\Fita\Platform\**;..\Fita\Audio\AlOutput.cs;..\Fita\Audio\OpenAl.cs"
+             Link="Shared\%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaXaml Include="..\Fita\App.axaml" Link="App.axaml" />
+    <AvaloniaXaml Include="..\Fita\Styles\Fita.axaml" Link="Styles\Fita.axaml" />
+    <AvaloniaResource Include="..\Fita\Assets\**" Exclude="..\Fita\Assets\fita.ico" Link="Assets\%(RecursiveDir)%(Filename)%(Extension)" />
+    <AndroidResource Include="..\Fita\Assets\fita.png" Link="Resources\mipmap\fita.png" />
+  </ItemGroup>
+
+  <!-- O ffmpeg e o ffprobe compilados para Android (tools/android/ffmpeg-android.sh), só os da
+       arquitetura que se está a compilar: uma APK de telemóvel com o do emulador fazia o Android
+       escolher a arquitetura errada. -->
+  <ItemGroup>
+    <AndroidNativeLibrary Include="ffmpeg\arm64-v8a\*.so" Abi="arm64-v8a" Condition="'$(RuntimeIdentifier)' != 'android-x64'" />
+    <AndroidNativeLibrary Include="ffmpeg\x86_64\*.so" Abi="x86_64" Condition="'$(RuntimeIdentifier)' != 'android-arm64'" />
+  </ItemGroup>
+
+  <!-- Os using implícitos do Android (Android.App, Android.Widget) chocam com os do Avalonia. -->
+  <ItemGroup>
+    <Using Remove="Android.App" />
+    <Using Remove="Android.Widget" />
+    <Using Remove="Android.OS.Bundle" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Android" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+
+</Project>

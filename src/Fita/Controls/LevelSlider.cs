@@ -153,6 +153,13 @@ public sealed class LevelSlider : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
+        // No toque não há "o rato saiu": ao largar o dedo, a lupa e o realce vão-se.
+        if (e.Pointer.Type == PointerType.Touch)
+        {
+            _hover = false;
+            _hoverAt = null;
+            Animate();
+        }
         if (!_dragging)
             return;
         _dragging = false;

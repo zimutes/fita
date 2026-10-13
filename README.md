@@ -6,12 +6,12 @@
 
 <p align="center">
   <b>Plays it all.</b><br>
-  A music player for Windows and Linux, in the spirit of the classic Winamp.<br>
+  A music player for Windows, Linux and Android, in the spirit of the classic Winamp.<br>
   <sub>by zimutek</sub>
 </p>
 
 <p align="center">
-  <a href="LEIAME.md">Leia-me em português</a> · Windows 10 / 11 · Linux · .NET 10 · ffmpeg · MIT
+  <a href="LEIAME.md">Leia-me em português</a> · Windows 10 / 11 · Linux · Android 7+ · .NET 10 · ffmpeg · MIT
 </p>
 
 <p align="center">
@@ -232,6 +232,34 @@ cd fita
 It installs to `~/.local/opt/fita`, with an `fita` command in `~/.local/bin` and an entry
 in your applications menu (with *Open with* for audio files and *Add to playlist*).
 
+### Android
+
+The same player on a phone: the same engine (gapless, the 10-band equalizer, ReplayGain),
+the same six themes and the same controls, laid out for a portrait screen. The display, seek
+bar (with the waveform, which ripples as you drag), transport and volume on top; below,
+three tabs: the playlist, the **library** (the music on the phone, by album, with search) and
+the **equalizer**. It keeps playing with the screen off or the app closed, with the system
+media controls (notification, lock screen, headphone buttons, Bluetooth, car), pauses for
+calls and when the headphones are unplugged. ffmpeg comes inside the app.
+
+Not on Android (yet): producer mode, the big visuals, separate windows, crossfade, speed and
+the A–B loop. Tested on the Android 15 emulator (x86_64); the phone build (arm64) has its
+ffmpeg tested, but not yet the whole app on a real phone.
+
+To build it (Windows): the .NET 10 SDK with the `android` workload, a JDK and the Android SDK
+(the script expects them in `C:\Android`; edit the paths for yours). ffmpeg for Android is
+built once, in a throwaway Debian container, with `tools/android/ffmpeg-android.sh` (its
+output goes in `src/Fita.Android/ffmpeg/`). Then:
+
+```powershell
+.\tools\android\compilar.ps1 -Release              # APK for phones (arm64)
+.\tools\android\compilar.ps1 -Release -Emulador    # APK for the emulator (x86_64)
+adb install -r src\Fita.Android\bin\Release\net10.0-android\android-arm64\org.zimutek.fita-Signed.apk
+```
+
+The APK is signed with the debug key: to install it straight on a phone, allow installs from
+unknown sources for the app you open it with.
+
 ## How it works
 
 - **Decoding:** one ffmpeg process per track (and per seek), writing 32-bit float stereo at
@@ -290,4 +318,5 @@ dotnet test tests/Fita.Tests
 
 [MIT](LICENSE) © zimutek. Third-party parts (OpenAL Soft, TagLib#, Avalonia, the fonts) keep
 their own licenses: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). ffmpeg is a separate
-project with its own license and is not included.
+project with its own license: the desktop versions use the one you install; the Android app
+carries an unmodified LGPL build of it (see the notices).

@@ -4,3 +4,6 @@ obj/
 publicar/
 *.user
 /capturas/
+
+# ffmpeg para Android: compila-se com tools/android/ffmpeg-android.sh (binários grandes, fora do git)
+src/Fita.Android/ffmpeg/

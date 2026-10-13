@@ -97,14 +97,14 @@
   </Style>
 
   <!-- Temas com relevo: premir afunda o conteúdo 1 px (Windows 95) -->
-  <Style Selector="Window.sink Button:pressed /template/ ContentPresenter#PART_ContentPresenter, Window.sink ToggleButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+  <Style Selector=".sink Button:pressed /template/ ContentPresenter#PART_ContentPresenter, .sink ToggleButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="RenderTransform" Value="translate(1px, 1px)" />
   </Style>
   <!-- Oceanic: o botão sobe um pouco ao passar por cima -->
-  <Style Selector="Window.lift Button:pointerover, Window.lift ToggleButton:pointerover">
+  <Style Selector=".lift Button:pointerover, .lift ToggleButton:pointerover">
     <Setter Property="RenderTransform" Value="translate(0px, -1px)" />
   </Style>
-  <Style Selector="Window.motion Button, Window.motion ToggleButton">
+  <Style Selector=".motion Button, .motion ToggleButton">
     <Setter Property="Transitions">
       <Transitions>
         <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.18" />
@@ -143,7 +143,7 @@
     <Setter Property="Height" Value="12" />
   </Style>
   <!-- No 1995 os botões da barra azul são caixas cinzentas em relevo -->
-  <Style Selector="Window.bevel Button.chrome">
+  <Style Selector=".bevel Button.chrome">
     <Setter Property="Background" Value="#C0C0C0" />
     <Setter Property="Foreground" Value="Black" />
     <Setter Property="Width" Value="18" />
@@ -151,20 +151,20 @@
     <Setter Property="Margin" Value="2,0,0,0" />
     <Setter Property="Opacity" Value="1" />
   </Style>
-  <Style Selector="Window.bevel Button.chrome /template/ Border#PART_Border">
+  <Style Selector=".bevel Button.chrome /template/ Border#PART_Border">
     <Setter Property="BoxShadow" Value="{DynamicResource BtnShadow}" />
   </Style>
-  <Style Selector="Window.bevel Button.chrome:pointerover">
+  <Style Selector=".bevel Button.chrome:pointerover">
     <Setter Property="Background" Value="#C0C0C0" />
     <Setter Property="Foreground" Value="Black" />
   </Style>
-  <Style Selector="Window.bevel Button.chrome:pointerover /template/ Border#PART_Border">
+  <Style Selector=".bevel Button.chrome:pointerover /template/ Border#PART_Border">
     <Setter Property="BoxShadow" Value="{DynamicResource BtnShadow}" />
   </Style>
-  <Style Selector="Window.bevel Button.chrome:pressed /template/ Border#PART_Border">
+  <Style Selector=".bevel Button.chrome:pressed /template/ Border#PART_Border">
     <Setter Property="BoxShadow" Value="{DynamicResource BtnShadowPressed}" />
   </Style>
-  <Style Selector="Window.bevel Button.chrome ctl|Glyph">
+  <Style Selector=".bevel Button.chrome ctl|Glyph">
     <Setter Property="Width" Value="9" />
     <Setter Property="Height" Value="9" />
   </Style>

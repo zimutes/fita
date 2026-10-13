@@ -65,7 +65,7 @@ public sealed class AudioEngine : IDisposable
     private readonly AutoResetEvent _wake = new(false);
     private readonly ManualResetEventSlim _ready = new(false);
     private volatile bool _disposed;
-    private AlOutput? _out;
+    private IAudioOutput? _out;
     private volatile int _rate = 48000;
     private long _consumed;
     private long _completed;
@@ -237,7 +237,18 @@ public sealed class AudioEngine : IDisposable
             _eq.Configure(copy, _rate);
     }
 
+#if ANDROID
+    public static List<string> OutputDevices() => [];
+
+    /// <summary>Abre a saída de som (o Android põe aqui o AudioTrack).</summary>
+    internal static Func<string?, IAudioOutput> OutputFactory { get; set; } =
+        _ => throw new InvalidOperationException("No audio output.");
+#else
     public static List<string> OutputDevices() => AlOutput.ListDevices();
+
+    /// <summary>Abre a saída de som.</summary>
+    internal static Func<string?, IAudioOutput> OutputFactory { get; set; } = name => new AlOutput(name);
+#endif
 
     /// <summary>null: o dispositivo por omissão.</summary>
     public void SetOutputDevice(string? name)
@@ -714,7 +725,7 @@ public sealed class AudioEngine : IDisposable
     {
         try
         {
-            _out = new AlOutput(_deviceName);
+            _out = OutputFactory(_deviceName);
             if (Silent)
                 _out.Gain = 0;
             _rate = _out.SampleRate;

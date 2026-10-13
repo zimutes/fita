@@ -234,6 +234,36 @@ cd fita
 Fica em `~/.local/opt/fita`, com o comando `fita` em `~/.local/bin` e uma entrada no menu
 de aplicações (com *Abrir com* para ficheiros de áudio e *Juntar à lista*).
 
+### Android
+
+O mesmo leitor no telemóvel: o mesmo motor (sem silêncio entre faixas, o equalizador de 10
+bandas, ReplayGain), os mesmos seis temas e os mesmos controlos, arrumados para um ecrã ao
+alto. Em cima o mostrador, a barra de posição (com a forma de onda, que ondula ao arrastar o
+dedo), o transporte e o volume; em baixo, três separadores: a lista, a **biblioteca** (a
+música do telemóvel, por álbum, com pesquisa) e o **equalizador**. Continua a tocar com o
+ecrã desligado ou a app fechada, com os controlos multimédia do sistema (notificação, ecrã de
+bloqueio, botões dos auscultadores, Bluetooth, carro), faz pausa nas chamadas e quando se
+desligam os auscultadores. O ffmpeg vem dentro da app.
+
+Ainda não há no Android: o modo producer, a visualização grande, as janelas separadas, o
+crossfade, a velocidade e o ciclo A–B. Testado no emulador do Android 15 (x86_64); a versão
+para telemóveis (arm64) tem o ffmpeg testado, mas a app inteira ainda não foi experimentada
+num telemóvel a sério.
+
+Para compilar (Windows): o SDK do .NET 10 com o workload `android`, um JDK e o SDK do Android
+(o script conta com eles em `C:\Android`; mude os caminhos para os seus). O ffmpeg para Android
+compila-se uma vez, num contentor Debian descartável, com `tools/android/ffmpeg-android.sh` (o
+resultado vai para `src/Fita.Android/ffmpeg/`). Depois:
+
+```powershell
+.\tools\android\compilar.ps1 -Release              # APK para telemóveis (arm64)
+.\tools\android\compilar.ps1 -Release -Emulador    # APK para o emulador (x86_64)
+adb install -r src\Fita.Android\bin\Release\net10.0-android\android-arm64\org.zimutek.fita-Signed.apk
+```
+
+A APK vem assinada com a chave de debug: para a instalar diretamente no telemóvel, autorize a
+instalação de origens desconhecidas na app com que a abrir.
+
 ## Como funciona
 
 - **Leitura:** um processo do ffmpeg por faixa (e por salto), a escrever estéreo em float de
@@ -294,4 +324,5 @@ dotnet test tests/Fita.Tests
 
 [MIT](LICENSE) © zimutek. As partes de terceiros (OpenAL Soft, TagLib#, Avalonia, as fontes)
 mantêm as suas licenças: ver [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). O ffmpeg é um
-projeto à parte, com licença própria, e não vem incluído.
+projeto à parte, com licença própria: as versões de desktop usam o que instalar; a app de
+Android leva uma compilação LGPL dele, sem alterações (ver os avisos).
