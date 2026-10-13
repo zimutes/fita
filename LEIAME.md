@@ -143,7 +143,22 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 
 ## Instalar
 
-Ainda não há transferências, por isso compila-se a partir do código:
+### Descarregar
+
+Da [versão mais recente](https://github.com/zimutes/fita/releases/latest):
+
+| Ficheiro | Para |
+|---|---|
+| `Fita-autonomo-win-x64.zip` | Windows 10/11 (x64). Autónomo: descomprimir onde quiser e abrir o `Fita.exe`. |
+| `Fita.exe` | Windows 10/11 (x64), mais pequeno. Precisa do [runtime .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0). |
+| `Fita-linux-x64.tar.gz` · `Fita-linux-arm64.tar.gz` | Linux. Autónomo: `tar -xzf Fita-linux-x64.tar.gz && ./fita/instalar.sh` |
+
+A Fita precisa também do **ffmpeg** (ver acima). Os ficheiros não estão assinados: o SmartScreen
+do Windows pode perguntar primeiro (*Mais informações → Executar mesmo assim*). As somas de
+verificação estão em `SHA256SUMS`. Para ter a Fita no menu Iniciar, no *Abrir com* e no botão
+direito do Explorador, use antes o instalador de baixo.
+
+### Compilar a partir do código
 
 **Windows** (PowerShell):
 
@@ -173,10 +188,6 @@ cd fita
 
 Fica em `~/.local/opt/fita`, com o comando `fita` em `~/.local/bin` e uma entrada no menu
 de aplicações (com *Abrir com* para ficheiros de áudio e *Juntar à lista*).
-
-Quando houver versões publicadas, trazem um `Fita.exe` pequeno (precisa do runtime .NET 10),
-um zip autónomo para Windows e pacotes autónomos para Linux (o `./fita/instalar.sh` instala
-o que vem com ele).
 
 ## Como funciona
 

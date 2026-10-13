@@ -144,7 +144,21 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 
 ## Install
 
-There are no downloads yet, so build it from source:
+### Download
+
+From the [latest release](https://github.com/zimutes/fita/releases/latest):
+
+| File | For |
+|---|---|
+| `Fita-autonomo-win-x64.zip` | Windows 10/11 (x64). Self-contained: unzip anywhere and run `Fita.exe`. |
+| `Fita.exe` | Windows 10/11 (x64), smaller. Needs the [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0). |
+| `Fita-linux-x64.tar.gz` · `Fita-linux-arm64.tar.gz` | Linux. Self-contained: `tar -xzf Fita-linux-x64.tar.gz && ./fita/instalar.sh` |
+
+Fita also needs **ffmpeg** (see above). The files are not signed: Windows SmartScreen may ask
+first (*More info → Run anyway*). Checksums are in `SHA256SUMS`. To get the Start menu entry,
+*Open with* and the right-click entries on Windows, use the installer below instead.
+
+### Build from source
 
 **Windows** (PowerShell):
 
@@ -174,10 +188,6 @@ cd fita
 
 It installs to `~/.local/opt/fita`, with an `fita` command in `~/.local/bin` and an entry
 in your applications menu (with *Open with* for audio files and *Add to playlist*).
-
-When releases exist, they carry a small `Fita.exe` (needs the .NET 10 runtime), a
-self-contained Windows zip and self-contained Linux packages (`./fita/instalar.sh` installs
-the one that comes with it).
 
 ## How it works
 
