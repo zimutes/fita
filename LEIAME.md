@@ -73,6 +73,11 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   repetir, ReplayGain, parar depois desta, limitador. A capa (a do ficheiro, ou um `cover.jpg`
   / `folder.jpg` ao lado) fica esbatida por trás do texto, para a janela não crescer, e a barra
   de posição desenha a forma de onda da faixa, na mesma altura de uma barra simples.
+- **Visualização grande, à MilkDrop:** duplo clique no espectro (ou `Ctrl+Shift+K`, como no
+  Winamp) abre uma janela à parte com uma visualização feita de raiz: cada imagem é a anterior
+  com zoom, rodada, em remoinho e a desvanecer, com a onda da música por cima e um empurrão em
+  cada batida. Oito presets que se fundem uns nos outros; `N` passa ao seguinte, duplo clique
+  ou `F` põe em ecrã inteiro, `Esc` fecha. Sem bibliotecas extra nem placa gráfica.
 - **Seis temas**, tirados dos seis temas do painel do Jazmin (o CMS do autor): Purple Haze,
   1995 Calling, Midnight OLED, Boutique Gold, Toxic Terminal e Oceanic Flow. Cada um muda mais
   do que as cores: fontes, forma dos botões, relevo ou brilho, o desenho dos controlos e do
@@ -120,6 +125,7 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 | `Enter` · `Del` · `Alt+↑↓` | Tocar · tirar · mudar de lugar as faixas selecionadas |
 | `A` | Ciclo A–B: marcar o A, o B, desligar |
 | `Alt+L` | Biblioteca / lista |
+| `Ctrl+Shift+K` | Visualização grande |
 
 ## O que é preciso
 

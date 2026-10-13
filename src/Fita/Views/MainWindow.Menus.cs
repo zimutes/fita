@@ -50,6 +50,7 @@ public partial class MainWindow
         vis.Items.Add(Radio(Loc.T("VisSpectrum"), _settings.Vis == VisMode.Spectrum, () => SetVis(VisMode.Spectrum)));
         vis.Items.Add(Radio(Loc.T("VisScope"), _settings.Vis == VisMode.Scope, () => SetVis(VisMode.Scope)));
         vis.Items.Add(Radio(Loc.T("VisOff"), _settings.Vis == VisMode.Off, () => SetVis(VisMode.Off)));
+        vis.Items.Add(Plain(Loc.T("BigVision"), OpenVision));
         vis.Items.Add(new Separator());
         vis.Items.Add(Check(Loc.T("ShowCover"), _settings.ShowCover, () => SetShowCover(!_settings.ShowCover)));
         vis.Items.Add(Check(Loc.T("ShowWaveform"), _settings.ShowWaveform, () => SetShowWaveform(!_settings.ShowWaveform)));
@@ -289,6 +290,7 @@ public partial class MainWindow
             ("Alt+↑  Alt+↓", "K.Move"),
             ("A", "K.Loop"),
             ("Alt+L", "K.Library"),
+            ("Ctrl+Shift+K", "K.Vision"),
         ];
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
         for (var i = 0; i < rows.Length; i++)

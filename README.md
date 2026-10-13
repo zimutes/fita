@@ -76,6 +76,11 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   ReplayGain, stop-after-current, limiter. The album art (from the file, or a `cover.jpg` /
   `folder.jpg` next to it) sits faded behind the text, so the window doesn't grow, and the
   seek bar draws the track's waveform, in the same height as a plain bar.
+- **Big visuals, MilkDrop style:** double-click the spectrum (or `Ctrl+Shift+K`, as in
+  Winamp) and a separate window opens with a feedback visualizer written from scratch: each
+  frame is the last one zoomed, turned, swirled and fading, with the music's wave drawn on
+  top and a kick on every beat. Eight presets that blend into each other; `N` for the next,
+  double-click or `F` for full screen, `Esc` to close. No extra libraries, no GPU needed.
 - **Six themes**, taken from the six themes of the panel of Jazmin (the author's CMS): Purple
   Haze, 1995 Calling, Midnight OLED, Boutique Gold, Toxic Terminal and Oceanic Flow. Each one
   changes more than colours: fonts, button shapes, relief or glow, how the sliders and the
@@ -122,6 +127,7 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 | `Enter` · `Del` · `Alt+↑↓` | Play · remove · move the selected tracks |
 | `A` | A–B loop: set A, set B, off |
 | `Alt+L` | Library / playlist |
+| `Ctrl+Shift+K` | Big visuals |
 
 ## What you need
 

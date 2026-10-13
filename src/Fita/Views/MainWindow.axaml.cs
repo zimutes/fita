@@ -163,7 +163,17 @@ public partial class MainWindow : Window
         {
             if (!e.GetCurrentPoint(Vis).Properties.IsLeftButtonPressed)
                 return;
-            SetVis(_settings.Vis switch { VisMode.Spectrum => VisMode.Scope, VisMode.Scope => VisMode.Off, _ => VisMode.Spectrum });
+            if (e.ClickCount >= 2)
+            {
+                // O primeiro clique já tinha trocado o modo: volta ao que estava e abre a grande.
+                SetVis(_visBeforeClick);
+                OpenVision();
+            }
+            else
+            {
+                _visBeforeClick = _settings.Vis;
+                SetVis(_settings.Vis switch { VisMode.Spectrum => VisMode.Scope, VisMode.Scope => VisMode.Off, _ => VisMode.Spectrum });
+            }
             e.Handled = true;
         };
         StatusText.PointerPressed += (_, e) =>
@@ -426,6 +436,30 @@ public partial class MainWindow : Window
         _loudness.Request(tracks);
     }
 
+    private VisMode _visBeforeClick;
+    private VisionWindow? _vision;
+
+    /// <summary>A visualização grande, numa janela à parte (só existe enquanto está aberta).</summary>
+    private void OpenVision()
+    {
+        if (_vision is not null)
+        {
+            _vision.Activate();
+            return;
+        }
+        var accent = ThemeManager.Current.Accent.ToHsv();
+        _vision = new VisionWindow(buffer =>
+        {
+            if (_engine.Snapshot().State == PlayState.Playing && !_demo)
+                _engine.CopyRecent(buffer);
+            else
+                Array.Clear(buffer);
+        }, accent.H / 360.0);
+        _vision.Closed += (_, _) => _vision = null;
+        _vision.Show();
+        _vision.ShowCaption(_shownTrack?.Display is { } title ? title : Loc.T("VisionHelp"));
+    }
+
     private void ToggleStopAfter()
     {
         _engine.StopAfterCurrent = !_engine.StopAfterCurrent;
@@ -515,6 +549,8 @@ public partial class MainWindow : Window
             ShowCover(track);
             ShowWaveform(track);
             LoadLyrics(track);
+            if (track is not null && snap.State == PlayState.Playing)
+                _vision?.ShowCaption(track.Display);
             if (track != _loopTrack)
             {
                 _loopTrack = track;
@@ -711,6 +747,7 @@ public partial class MainWindow : Window
     {
         base.OnClosed(e);
         _slowTimer.Stop();
+        _vision?.Close();
         _engine.Dispose();
         _tags.Dispose();
         _loudness.Dispose();

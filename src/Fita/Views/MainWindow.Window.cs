@@ -104,6 +104,9 @@ public partial class MainWindow
             }, DispatcherPriority.Loaded);
             ApplyWindowCorners();
             StartSystemIntegration();
+            // Testes: abrir logo a visualização grande.
+            if (Environment.GetEnvironmentVariable("FITA_VISION") == "1")
+                OpenVision();
         };
     }
 
@@ -259,6 +262,7 @@ public partial class MainWindow
             case Key.L when alt: SetLibraryMode(!_libraryMode); break;
             case Key.W when ctrl: ToggleCompact(); break;
             case Key.T when ctrl: ToggleTimeMode(); break;
+            case Key.K when ctrl && shift: OpenVision(); break;
             case Key.T when plain: NextTheme(); break;
             case Key.A when plain: CycleLoop(); break;
             case Key.Delete when PlaylistBox.SelectedItems is { Count: > 0 }: RemoveSelected(); break;
