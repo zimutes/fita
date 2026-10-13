@@ -74,7 +74,8 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   go back to your browser when it is stopped.
 - **One instance:** opening files with Fita already open adds them to it. On Windows,
   *Open with*, and right-click on folders and audio files gives *Play in Fita* and
-  *Add to Fita playlist*.
+  *Add to Fita playlist*, with any number of items selected (they go in as one batch, in
+  natural order).
 - **English or Portuguese.**
 
 ### Keys
@@ -119,7 +120,8 @@ cd fita
 ```
 
 It installs to `%LOCALAPPDATA%\Programs\Fita`, adds **Fita** to the Start menu and to
-*Open with* for audio files, and (unless `-SemMenus`) adds *Play in Fita* / *Add to Fita
+*Open with* for audio files (and to Windows' *Default apps*, without becoming the
+default), and (unless `-SemMenus`) adds *Play in Fita* / *Add to Fita
 playlist* to the right-click menu of folders and audio files. No admin rights needed. To
 remove it: `.\tools\desinstalar.ps1` (`-Tudo` also deletes the settings, `-WhatIf` shows
 what it would do).

@@ -72,7 +72,8 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   para o navegador.
 - **Uma só janela:** abrir ficheiros com a Fita já aberta junta-os a ela. No Windows há
   *Abrir com* e, no botão direito das pastas e dos ficheiros de áudio, *Tocar na Fita* e
-  *Juntar à lista da Fita*.
+  *Juntar à lista da Fita*, com quantos se quiser escolhidos (entram de uma vez, pela ordem
+  natural).
 - **Inglês ou português.**
 
 ### Teclas
@@ -118,7 +119,8 @@ cd fita
 ```
 
 Fica em `%LOCALAPPDATA%\Programs\Fita`, com o **Fita** no menu Iniciar e no *Abrir com*
-dos ficheiros de áudio e (a não ser com `-SemMenus`) *Tocar na Fita* / *Juntar à lista da
+dos ficheiros de áudio (e nas *Aplicações predefinidas* do Windows, sem passar a ser a
+predefinida) e (a não ser com `-SemMenus`) *Tocar na Fita* / *Juntar à lista da
 Fita* no botão direito das pastas e dos ficheiros de áudio. Não precisa de permissões de
 administrador. Para remover: `.\tools\desinstalar.ps1` (`-Tudo` apaga também as definições,
 `-WhatIf` mostra o que faria).

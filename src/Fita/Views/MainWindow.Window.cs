@@ -313,6 +313,15 @@ public partial class MainWindow
 
     // ── Linha de comandos e segunda instância ─────────────────────────────────
 
+    // Com vários ficheiros selecionados, o Explorador lança um processo por ficheiro e cada um
+    // manda só o seu caminho. O que chega quase junto é uma seleção: junta-se, põe-se pela ordem
+    // natural e entra na lista de uma vez, a tocar a partir do primeiro.
+    private readonly List<string> _incomingPlay = [];
+    private readonly List<string> _incomingEnqueue = [];
+    private DispatcherTimer? _incomingTimer;
+    private Task _incomingDone = Task.CompletedTask;
+    private long? _lastPlayBatch;
+
     /// <summary>
     /// Ficheiros vindos da linha de comandos (ou de uma segunda instância): juntam-se à lista e
     /// tocam; com --enqueue só se juntam.
@@ -327,7 +336,57 @@ public partial class MainWindow
                 WindowState = WindowState.Normal;
             Activate();
         }
-        if (paths.Count > 0)
-            _ = AddPathsAsync(paths, play: !enqueue);
+        if (paths.Count == 0)
+            return;
+        (enqueue ? _incomingEnqueue : _incomingPlay).AddRange(paths);
+        if (_incomingTimer is null)
+        {
+            _incomingTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(startup ? 700 : 400) };
+            _incomingTimer.Tick += (_, _) => FlushIncoming();
+        }
+        // Cada chegada adia a entrada: só se trata quando a seleção acabou de chegar.
+        _incomingTimer.Stop();
+        _incomingTimer.Start();
+    }
+
+    private void FlushIncoming()
+    {
+        _incomingTimer!.Stop();
+        _incomingTimer.Interval = TimeSpan.FromMilliseconds(400);
+        var play = TakeSorted(_incomingPlay);
+        var enqueue = TakeSorted(_incomingEnqueue);
+        // Um processo atrasado da mesma seleção junta-se ao fim, em vez de tirar a vez ao que já toca.
+        var now = Environment.TickCount64;
+        var startPlaying = play.Count > 0 && (_lastPlayBatch is not { } last || now - last > 3000);
+        if (play.Count > 0)
+            _lastPlayBatch = now;
+
+        // Uma entrada de cada vez, para a ordem da lista ser a da chegada.
+        var previous = _incomingDone;
+        _incomingDone = AddInOrder();
+
+        async Task AddInOrder()
+        {
+            try
+            {
+                await previous;
+                if (play.Count > 0)
+                    await AddPathsAsync(play, play: startPlaying);
+                if (enqueue.Count > 0)
+                    await AddPathsAsync(enqueue, play: false);
+            }
+            catch (Exception ex)
+            {
+                Log.Write("Ficheiros recebidos: " + ex.Message);
+            }
+        }
+    }
+
+    private static List<string> TakeSorted(List<string> pending)
+    {
+        var paths = pending.ToList();
+        pending.Clear();
+        paths.Sort(NaturalComparer.Instance);
+        return paths;
     }
 }

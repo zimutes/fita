@@ -19,7 +19,10 @@ $chaves = @(
     "HKCU:\Software\Classes\Directory\shell\Fita.Play",
     "HKCU:\Software\Classes\Directory\shell\Fita.Enqueue",
     "HKCU:\Software\Classes\SystemFileAssociations\audio\shell\Fita.Play",
-    "HKCU:\Software\Classes\SystemFileAssociations\audio\shell\Fita.Enqueue"
+    "HKCU:\Software\Classes\SystemFileAssociations\audio\shell\Fita.Enqueue",
+    "HKCU:\Software\Classes\Fita.Audio",
+    "HKCU:\Software\Classes\Fita.Playlist",
+    "HKCU:\Software\zimutek\Fita"
 )
 
 function Feito($texto) { Write-Host "  $texto" -ForegroundColor Green }
@@ -57,6 +60,32 @@ foreach ($chave in $chaves) {
         Remove-Item -LiteralPath $chave -Recurse -Force
         Feito "registo removido: $(Split-Path $chave -Leaf)"
     }
+}
+
+# Nas extensões só se tira o valor da Fita: o resto do OpenWithProgids é de outras apps.
+$progIds = "Fita.Audio", "Fita.Playlist"
+$listas = Get-ChildItem "HKCU:\Software\Classes" -ErrorAction SilentlyContinue |
+    Where-Object { $_.PSChildName.StartsWith(".") } |
+    ForEach-Object { Join-Path $_.PSPath "OpenWithProgids" } |
+    Where-Object { Test-Path -LiteralPath $_ }
+foreach ($lista in $listas) {
+    $item = Get-Item -LiteralPath $lista
+    foreach ($nome in $progIds | Where-Object { $item.GetValueNames() -contains $_ }) {
+        if ($PSCmdlet.ShouldProcess("$($item.Name) ($nome)", "Apagar")) {
+            Remove-ItemProperty -LiteralPath $lista -Name $nome
+        }
+    }
+}
+$registadas = "HKCU:\Software\RegisteredApplications"
+if ((Test-Path -LiteralPath $registadas) -and (Get-Item -LiteralPath $registadas).GetValueNames() -contains "Fita" -and
+        $PSCmdlet.ShouldProcess("$registadas (Fita)", "Apagar")) {
+    Remove-ItemProperty -LiteralPath $registadas -Name "Fita"
+    Feito "registo removido: Abrir com e Aplicações predefinidas"
+}
+$zimutek = "HKCU:\Software\zimutek"
+if ((Test-Path -LiteralPath $zimutek) -and -not (Get-ChildItem -LiteralPath $zimutek) -and
+        (Get-Item -LiteralPath $zimutek).ValueCount -eq 0 -and $PSCmdlet.ShouldProcess($zimutek, "Apagar")) {
+    Remove-Item -LiteralPath $zimutek
 }
 
 Remover-Pasta $destino "ficheiros removidos"

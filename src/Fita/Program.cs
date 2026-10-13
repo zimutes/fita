@@ -11,8 +11,8 @@ internal static class Program
         if (args.Length > 0 && args[0] == "--selftest")
             return SelfTest.Run(args.Skip(1).ToArray());
 
-        // Já há uma Fita aberta: entrega-lhe os ficheiros e sai.
-        if (SingleInstance.TrySend(args))
+        // Já há uma Fita aberta (ou a abrir): entrega-lhe os ficheiros e sai.
+        if (SingleInstance.HandOff(args))
             return 0;
 
         AppDomain.CurrentDomain.UnhandledException += (_, e) => Log.Write("Erro: " + e.ExceptionObject);
