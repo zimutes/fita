@@ -22,10 +22,8 @@
 
 > ### Leia isto primeiro
 >
-> **Escrito por IA.** Esta aplicação (código, ícone e este texto) foi escrita por IA
-> (Claude, da Anthropic, através do Claude Code) a pedido do autor, e é partilhada tal como está.
-> Foi testada no PC do autor, com Windows 11, e em Debian 13 (X11), com ficheiros MP3, FLAC,
-> Ogg Vorbis, Opus, AAC, WAV, WMA e AIFF.
+> **Testada** no Windows 11 e em Debian 13 (X11), com ficheiros MP3, FLAC, Ogg Vorbis, Opus,
+> AAC, WAV, WMA e AIFF. Partilhada tal como está.
 >
 > **Sem ligação ao Winamp.** «Winamp» é uma marca dos seus donos; a Fita só lhe pede o
 > espírito emprestado. Sem garantia de qualquer tipo, ver a [LICENSE](LICENSE).

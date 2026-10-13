@@ -26,10 +26,8 @@
 
 > ### Read this first
 >
-> **Written by AI.** This app (the code, the icon and this README) was written by AI
-> (Claude, by Anthropic, through Claude Code) at the author's request, and is shared as-is.
-> It was tested on the author's Windows 11 PC and on Debian 13 (X11), with MP3, FLAC, Ogg
-> Vorbis, Opus, AAC, WAV, WMA and AIFF files.
+> **Tested** on Windows 11 and on Debian 13 (X11), with MP3, FLAC, Ogg Vorbis, Opus, AAC,
+> WAV, WMA and AIFF files. Shared as-is.
 >
 > **Not affiliated with Winamp.** "Winamp" is a trademark of its owners; Fita only borrows
 > the spirit. No warranty of any kind, see [LICENSE](LICENSE).

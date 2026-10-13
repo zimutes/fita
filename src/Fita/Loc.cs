@@ -253,8 +253,6 @@ public static class Loc
         ["K.Loop"] = ("A–B loop: set A, set B, off", "Ciclo A–B: marcar o A, o B, desligar"),
         ["Credits"] = ("Sound: FFmpeg, OpenAL Soft · Tags: TagLib# · Interface: Avalonia · Fonts: SIL Open Font License",
                        "Som: FFmpeg, OpenAL Soft · Etiquetas: TagLib# · Interface: Avalonia · Fontes: SIL Open Font License"),
-        ["AiNote"] = ("Written by AI (Claude, by Anthropic) at the author's request.",
-                      "Escrito por IA (Claude, da Anthropic) a pedido do autor."),
     };
 
     public static UiLanguage Language { get; private set; } = UiLanguage.En;
