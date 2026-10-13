@@ -72,6 +72,8 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   (no Linux, por MPRIS: GNOME, KDE, `playerctl`) com título, artista, capa e posição, e recebe
   por aí as teclas multimédia e os botões dos auscultadores, mesmo com a janela em segundo
   plano. As teclas vão para a última app que tocou, como com qualquer outro leitor.
+  No Windows, a miniatura na barra de tarefas tem anterior, tocar/pausa e seguinte, e o botão
+  da barra enche à medida que a faixa toca (desliga-se no menu).
 - **Teclado primeiro**, com as teclas do Winamp (abaixo).
 - **Uma só janela:** abrir ficheiros com a Fita já aberta junta-os a ela. No Windows há
   *Abrir com* e, no botão direito das pastas e dos ficheiros de áudio, *Tocar na Fita* e

@@ -25,6 +25,8 @@ public sealed class AppSettings
     public bool ShowPlaylist { get; set; } = true;
     public bool Compact { get; set; }
     public bool AlwaysOnTop { get; set; }
+    /// <summary>Windows: o progresso da faixa no botão da barra de tarefas.</summary>
+    public bool TaskbarProgress { get; set; } = true;
     public VisMode Vis { get; set; } = VisMode.Spectrum;
     /// <summary>A capa por trás do mostrador.</summary>
     public bool ShowCover { get; set; } = true;

@@ -74,6 +74,8 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   (on Linux, through MPRIS: GNOME, KDE, `playerctl`) with title, artist, album art and
   position, and takes the media keys and headphone buttons from there, even with the window
   in the background. The keys go to whichever app played last, like with any other player.
+  On Windows the taskbar thumbnail has previous, play/pause and next, and the taskbar
+  button fills up as the track plays (this can be turned off in the menu).
 - **Keyboard first**, with Winamp's keys (below).
 - **One instance:** opening files with Fita already open adds them to it. On Windows,
   *Open with*, and right-click on folders and audio files gives *Play in Fita* and

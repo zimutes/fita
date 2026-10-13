@@ -1,6 +1,10 @@
 using Fita.Audio;
+using Fita.Controls;
 using Fita.Library;
 using Fita.Platform;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 
@@ -8,12 +12,14 @@ namespace Fita.Views;
 
 /// <summary>
 /// A Fita vista de fora: o painel multimédia do sistema (SMTC no Windows, MPRIS no Linux), as
-/// teclas multimédia e a capa da faixa (no mostrador e no painel).
+/// teclas multimédia, o botão na barra de tarefas do Windows e a capa da faixa (no mostrador e
+/// no painel).
 /// </summary>
 public partial class MainWindow
 {
     private IMediaSession? _session;
     private WindowsMediaKeys? _mediaKeys;
+    private WindowsTaskbar? _taskbar;
     private PlayState _sessionState = (PlayState)(-1);
     private int _sessionTicks;
     private Track? _coverTrack;
@@ -42,6 +48,11 @@ public partial class MainWindow
                 WindowsMediaKeys.MediaKey.Stop => MediaCommand.Stop,
                 _ => MediaCommand.PlayPause,
             })));
+        if (OperatingSystem.IsWindows() && handle != IntPtr.Zero)
+        {
+            _taskbar = new WindowsTaskbar(handle, OnMediaCommand, TaskbarIcon) { ShowProgress = _settings.TaskbarProgress };
+            Win32Properties.AddWndProcHookCallback(this, TaskbarHook);
+        }
         _coverTrack = null;
         ShowCover(_shownTrack);
         SyncSystem(_engine.Snapshot(), force: true);
@@ -49,6 +60,12 @@ public partial class MainWindow
 
     private void StopSystemIntegration()
     {
+        if (_taskbar is not null)
+        {
+            Win32Properties.RemoveWndProcHookCallback(this, TaskbarHook);
+            _taskbar.Dispose();
+            _taskbar = null;
+        }
         _coverCancel?.Cancel();
         _session?.Dispose();
         _session = null;
@@ -95,21 +112,65 @@ public partial class MainWindow
     private void SyncSystem(EngineSnapshot snap, bool force = false)
     {
         _mediaKeys?.SetActive(snap.State != PlayState.Stopped);
-        if (_session is null)
-            return;
+        _taskbar?.SetState(snap.State, _shownTrack is not null);
         var duration = (snap.Segment?.Item.Tag as Track ?? _shownTrack)?.Duration ?? 0;
         var position = snap.State == PlayState.Stopped ? 0 : snap.Position;
         if (snap.State != _sessionState || force)
         {
             _sessionState = snap.State;
-            _session.SetState(snap.State);
+            _session?.SetState(snap.State);
             _sessionTicks = PositionEvery;
         }
         if (++_sessionTicks >= PositionEvery)
         {
             _sessionTicks = 0;
-            _session.SetPosition(position, duration);
+            _session?.SetPosition(position, duration);
+            _taskbar?.SetProgress(position, duration);
         }
+    }
+
+    private IntPtr TaskbarHook(IntPtr hwnd, uint message, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (_taskbar?.HandleMessage(message, wParam) == true)
+            handled = true;
+        return IntPtr.Zero;
+    }
+
+    /// <summary>Os ícones da miniatura são os glifos dos botões de transporte, a branco.</summary>
+    private unsafe IntPtr TaskbarIcon(WindowsTaskbar.GlyphIcon icon)
+    {
+        var size = WindowsTaskbar.IconSize(TryGetPlatformHandle()?.Handle ?? IntPtr.Zero);
+        var glyph = new Glyph
+        {
+            Kind = icon switch
+            {
+                WindowsTaskbar.GlyphIcon.Previous => GlyphKind.Prev,
+                WindowsTaskbar.GlyphIcon.Pause => GlyphKind.Pause,
+                WindowsTaskbar.GlyphIcon.Next => GlyphKind.Next,
+                _ => GlyphKind.Play,
+            },
+            Foreground = Brushes.White,
+        };
+        glyph.Measure(new Size(size, size));
+        glyph.Arrange(new Rect(0, 0, size, size));
+        using var bitmap = new RenderTargetBitmap(new PixelSize(size, size));
+        bitmap.Render(glyph);
+        var pixels = new byte[size * size * 4];
+        fixed (byte* p = pixels)
+            bitmap.CopyPixels(new PixelRect(0, 0, size, size), (IntPtr)p, pixels.Length, size * 4);
+        // Vem com o alfa pré-multiplicado; o ícone quer branco com alfa.
+        for (var i = 0; i < pixels.Length; i += 4)
+            pixels[i] = pixels[i + 1] = pixels[i + 2] = 255;
+        return WindowsTaskbar.CreateIcon(size, pixels);
+    }
+
+    private void SetTaskbarProgress(bool on)
+    {
+        _settings.TaskbarProgress = on;
+        if (_taskbar is null)
+            return;
+        _taskbar.ShowProgress = on;
+        _sessionTicks = PositionEvery;
     }
 
     // ── Capa ──────────────────────────────────────────────────────────────────

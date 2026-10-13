@@ -74,6 +74,8 @@ public partial class MainWindow
             _settings.AlwaysOnTop = !_settings.AlwaysOnTop;
             Topmost = _settings.AlwaysOnTop;
         }));
+        if (OperatingSystem.IsWindows())
+            menu.Items.Add(Check(Loc.T("TaskbarProgress"), _settings.TaskbarProgress, () => SetTaskbarProgress(!_settings.TaskbarProgress)));
         menu.Items.Add(new Separator());
         menu.Items.Add(Plain(Loc.T("LocateFfmpeg"), async () => await PickFfmpegAsync()));
         menu.Items.Add(Plain(Loc.T("Shortcuts"), ShowShortcuts));
