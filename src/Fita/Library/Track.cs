@@ -23,7 +23,21 @@ public sealed class Track : INotifyPropertyChanged
 
     public string Path { get; }
 
-    public string FileName => System.IO.Path.GetFileNameWithoutExtension(Path);
+    /// <summary>Faixa de um .cue: começa neste segundo do ficheiro…</summary>
+    public double Start { get; init; }
+
+    /// <summary>…e acaba neste (0: no fim do ficheiro).</summary>
+    public double End { get; init; }
+
+    /// <summary>Só um troço do ficheiro (faixa de um .cue).</summary>
+    public bool IsPart => Start > 0 || End > 0;
+
+    /// <summary>O que distingue a faixa na lista: o caminho e, num troço, onde começa.</summary>
+    public string Key => IsPart ? Path + "#" + Start.ToString("R", System.Globalization.CultureInfo.InvariantCulture) : Path;
+
+    public string FileName => IsPart && TrackNumber > 0
+        ? $"{System.IO.Path.GetFileNameWithoutExtension(Path)} #{TrackNumber}"
+        : System.IO.Path.GetFileNameWithoutExtension(Path);
 
     public string? Title { get => _title; set => SetDisplay(ref _title, value); }
     public string? Artist { get => _artist; set => SetDisplay(ref _artist, value); }

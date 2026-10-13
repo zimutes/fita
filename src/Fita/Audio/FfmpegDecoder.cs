@@ -37,10 +37,11 @@ internal sealed class FfmpegDecoder : IDisposable
         foreach (var a in (string[])["-hide_banner", "-nostdin", "-v", "error",
                      "-protocol_whitelist", "file", "-format_whitelist", FormatWhitelist])
             start.ArgumentList.Add(a);
-        if (startSeconds > 0.01)
+        if (startSeconds > 0.000001)
         {
+            // Ao microssegundo: as faixas de um .cue encostam-se umas às outras a partir daqui.
             start.ArgumentList.Add("-ss");
-            start.ArgumentList.Add(startSeconds.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
+            start.ArgumentList.Add(startSeconds.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture));
         }
         // O prefixo "file:" impede que um nome seja lido como protocolo ou como opção.
         foreach (var a in (string[])["-i", "file:" + file, "-map", "0:a:0", "-vn", "-sn", "-dn",

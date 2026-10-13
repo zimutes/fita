@@ -66,7 +66,7 @@ Exec="$destino/Fita" %F
 Icon=$destino/fita.png
 Terminal=false
 Categories=AudioVideo;Audio;Player;
-MimeType=audio/mpeg;audio/flac;audio/x-flac;audio/ogg;audio/x-vorbis+ogg;audio/opus;audio/x-opus+ogg;audio/wav;audio/x-wav;audio/aiff;audio/x-aiff;audio/mp4;audio/x-m4a;audio/aac;audio/x-ms-wma;audio/x-ape;audio/x-wavpack;audio/x-musepack;audio/x-matroska;audio/x-mpegurl;audio/x-scpls;audio/x-mod;audio/x-xm;audio/x-it;audio/x-s3m;
+MimeType=audio/mpeg;audio/flac;audio/x-flac;audio/ogg;audio/x-vorbis+ogg;audio/opus;audio/x-opus+ogg;audio/wav;audio/x-wav;audio/aiff;audio/x-aiff;audio/mp4;audio/x-m4a;audio/aac;audio/x-ms-wma;audio/x-ape;audio/x-wavpack;audio/x-musepack;audio/x-matroska;audio/x-mpegurl;audio/x-scpls;application/x-cue;audio/x-mod;audio/x-xm;audio/x-it;audio/x-s3m;
 Actions=Enqueue;
 
 [Desktop Action Enqueue]

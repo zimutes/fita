@@ -4,8 +4,12 @@ namespace Fita.Audio;
 
 public enum PlayState { Stopped, Playing, Paused }
 
-/// <summary>O que tocar: o item da lista (opaco para o motor), o ficheiro e o ganho (ReplayGain).</summary>
-public sealed record PlayItem(object? Tag, string Path, float Gain = 1f);
+/// <summary>
+/// O que tocar: o item da lista (opaco para o motor), o ficheiro, o ganho (ReplayGain) e, numa
+/// faixa de um .cue, o troço do ficheiro em segundos (End 0: até ao fim). As posições do motor
+/// contam a partir de Start.
+/// </summary>
+public sealed record PlayItem(object? Tag, string Path, float Gain = 1f, double Start = 0, double End = 0);
 
 /// <summary>Um troço contínuo de som: uma faixa a partir de um certo segundo.</summary>
 public sealed class Segment(PlayItem item, double startSeconds)
@@ -286,27 +290,44 @@ public sealed class AudioEngine : IDisposable
             var item = first;
             var offset = start;
             var failures = 0;
-            while (!ct.IsCancellationRequested)
+            // O ffmpeg parado no fim de um troço, à espera de ver se a faixa seguinte o continua.
+            FfmpegDecoder? open = null;
+            try
             {
-                if (DecodeOne(gen, new Segment(item, offset), ct))
-                    failures = 0;
-                else if (++failures >= 8)
-                    break;
-                if (ct.IsCancellationRequested)
-                    return;
-                PlayItem? next;
-                try
+                while (!ct.IsCancellationRequested)
                 {
-                    next = NextItem?.Invoke(item, ct);
+                    var ok = DecodeOne(gen, new Segment(item, offset), ref open, ct);
+                    if (ok)
+                        failures = 0;
+                    else if (++failures >= 8)
+                        break;
+                    if (ct.IsCancellationRequested)
+                        return;
+                    PlayItem? next;
+                    try
+                    {
+                        next = NextItem?.Invoke(item, ct);
+                    }
+                    catch
+                    {
+                        next = null;
+                    }
+                    // Faixas seguidas de um .cue: o mesmo ffmpeg continua, sem reabrir o ficheiro
+                    // nem recomeçar o resampler; a fronteira fica exata.
+                    if (open is not null && !(next is not null && Continues(item, next)))
+                    {
+                        open.Dispose();
+                        open = null;
+                    }
+                    if (next is null)
+                        break;
+                    item = next;
+                    offset = 0;
                 }
-                catch
-                {
-                    next = null;
-                }
-                if (next is null)
-                    break;
-                item = next;
-                offset = 0;
+            }
+            finally
+            {
+                open?.Dispose();
             }
             if (!ct.IsCancellationRequested)
                 Push(new Chunk(gen, [], 0) { End = true }, ct);
@@ -317,41 +338,58 @@ public sealed class AudioEngine : IDisposable
         }
     }
 
-    /// <summary>Verdadeiro se a faixa deu som (ou se foi interrompida a meio).</summary>
-    private bool DecodeOne(int gen, Segment segment, CancellationToken ct)
+    private static bool Continues(PlayItem previous, PlayItem next) =>
+        previous.End > 0 && next.Path == previous.Path && Math.Abs(next.Start - previous.End) < 1e-6;
+
+    /// <summary>
+    /// Verdadeiro se a faixa deu som (ou se foi interrompida a meio). <paramref name="open"/>: à
+    /// entrada, um ffmpeg já no sítio certo (a faixa anterior do mesmo ficheiro); à saída, o
+    /// ffmpeg a guardar se o troço acabou antes do fim do ficheiro.
+    /// </summary>
+    private bool DecodeOne(int gen, Segment segment, ref FfmpegDecoder? open, CancellationToken ct)
     {
-        var ffmpeg = FfmpegPath;
-        if (string.IsNullOrEmpty(ffmpeg))
+        var decoder = open;
+        open = null;
+        if (decoder is null)
         {
-            Failures.Enqueue((segment.Item, "ffmpeg"));
-            return false;
+            var ffmpeg = FfmpegPath;
+            if (string.IsNullOrEmpty(ffmpeg))
+            {
+                Failures.Enqueue((segment.Item, "ffmpeg"));
+                return false;
+            }
+            try
+            {
+                decoder = new FfmpegDecoder(ffmpeg, segment.Item.Path, segment.Item.Start + segment.StartSeconds, _rate);
+            }
+            catch (Exception ex)
+            {
+                Failures.Enqueue((segment.Item, ex.Message));
+                return false;
+            }
         }
 
-        FfmpegDecoder decoder;
+        // Num troço, para-se na amostra certa: a faixa seguinte do mesmo ficheiro começa exatamente
+        // aí, e a passagem fica sem cortes nem repetições.
+        var left = segment.Item.End > 0
+            ? (long)Math.Round((segment.Item.End - segment.Item.Start - segment.StartSeconds) * _rate)
+            : long.MaxValue;
+        var keep = false;
         try
         {
-            decoder = new FfmpegDecoder(ffmpeg, segment.Item.Path, segment.StartSeconds, _rate);
-        }
-        catch (Exception ex)
-        {
-            Failures.Enqueue((segment.Item, ex.Message));
-            return false;
-        }
-
-        using (decoder)
-        using (ct.Register(decoder.Kill))
-        {
+            using var _ = ct.Register(decoder.Kill);
             var first = true;
             var gain = segment.Item.Gain;
-            while (!ct.IsCancellationRequested)
+            while (!ct.IsCancellationRequested && left > 0)
             {
                 var data = new float[ChunkFrames * 2];
                 var frames = 0;
+                var want = (int)Math.Min(ChunkFrames, left);
                 try
                 {
-                    while (frames < ChunkFrames)
+                    while (frames < want)
                     {
-                        var n = decoder.Read(data.AsSpan(frames * 2));
+                        var n = decoder.Read(data.AsSpan(frames * 2, (want - frames) * 2));
                         if (n == 0)
                             break;
                         frames += n;
@@ -362,6 +400,7 @@ public sealed class AudioEngine : IDisposable
                 }
                 if (frames == 0)
                     break;
+                left -= frames;
                 if (gain != 1f)
                     for (var i = 0; i < frames * 2; i++)
                         data[i] *= gain;
@@ -375,7 +414,16 @@ public sealed class AudioEngine : IDisposable
                 Failures.Enqueue((segment.Item, string.IsNullOrWhiteSpace(error) ? "no audio" : error));
                 return false;
             }
+            // Troço lido até ao fim sem o ficheiro acabar: o ffmpeg pode servir a faixa seguinte.
+            keep = left == 0 && !ct.IsCancellationRequested;
             return true;
+        }
+        finally
+        {
+            if (keep)
+                open = decoder;
+            else
+                decoder.Dispose();
         }
     }
 

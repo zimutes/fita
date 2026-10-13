@@ -215,7 +215,7 @@ public partial class MainWindow : Window
             _ => double.NaN,
         };
         var gain = double.IsNaN(db) ? 1f : (float)Math.Clamp(Math.Pow(10, db / 20), 0.05, 4);
-        return new PlayItem(track, track.Path, gain);
+        return new PlayItem(track, track.Path, gain, track.Start, track.End);
     }
 
     /// <summary>Chamado na thread de descodificação: pede à interface a faixa que se segue.</summary>

@@ -260,6 +260,6 @@ public partial class MainWindow
     public void DemoCover(Bitmap cover) => SetCoverImage(cover);
 
     private static NowPlaying NowPlayingOf(Track track, byte[]? cover) =>
-        new(track.Path, string.IsNullOrWhiteSpace(track.Title) ? track.FileName : track.Title!, track.Artist, track.Album,
+        new(track.Key, string.IsNullOrWhiteSpace(track.Title) ? track.FileName : track.Title!, track.Artist, track.Album,
             track.TrackNumber, track.Duration, cover);
 }

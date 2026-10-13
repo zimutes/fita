@@ -116,11 +116,11 @@ public sealed class Playlist
         SetCurrent(null);
     }
 
-    /// <summary>Remove ficheiros repetidos (o mesmo caminho), mantendo a primeira ocorrência.</summary>
+    /// <summary>Remove faixas repetidas (o mesmo caminho e troço), mantendo a primeira ocorrência.</summary>
     public int RemoveDuplicates()
     {
         var seen = new HashSet<string>(PathComparer);
-        var keep = Items.Where(t => seen.Add(t.Path)).ToList();
+        var keep = Items.Where(t => seen.Add(t.Key)).ToList();
         var removed = Items.Count - keep.Count;
         if (removed > 0)
         {

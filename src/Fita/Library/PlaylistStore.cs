@@ -9,6 +9,9 @@ public static class PlaylistStore
     public sealed class Entry
     {
         public string Path { get; set; } = "";
+        /// <summary>Troço de um .cue (segundos no ficheiro).</summary>
+        public double? Start { get; set; }
+        public double? End { get; set; }
         public string? Title { get; set; }
         public string? Artist { get; set; }
         public string? Album { get; set; }
@@ -97,7 +100,7 @@ public static class PlaylistStore
 
     private static Entry ToEntry(Track t) => new()
     {
-        Path = t.Path, Title = t.Title, Artist = t.Artist, Album = t.Album, TrackNumber = t.TrackNumber,
+        Path = t.Path, Start = t.Start > 0 ? t.Start : null, End = t.End > 0 ? t.End : null, Title = t.Title, Artist = t.Artist, Album = t.Album, TrackNumber = t.TrackNumber,
         Year = t.Year, Genre = t.Genre, Duration = t.Duration, Bitrate = t.Bitrate, SampleRate = t.SampleRate,
         Channels = t.Channels, Bits = t.BitsPerSample, Codec = t.Codec, TrackGain = Nan(t.TrackGain),
         AlbumGain = Nan(t.AlbumGain), TrackPeak = Nan(t.TrackPeak), AlbumPeak = Nan(t.AlbumPeak),
@@ -108,6 +111,8 @@ public static class PlaylistStore
     {
         var t = new Track(e.Path)
         {
+            Start = e.Start is > 0 and < double.MaxValue ? e.Start.Value : 0,
+            End = e.End is > 0 and < double.MaxValue ? e.End.Value : 0,
             Title = e.Title, Artist = e.Artist, Album = e.Album, TrackNumber = e.TrackNumber, Year = e.Year,
             Genre = e.Genre, Duration = e.Duration, Bitrate = e.Bitrate, SampleRate = e.SampleRate,
             Channels = e.Channels, BitsPerSample = e.Bits, Codec = e.Codec ?? "",

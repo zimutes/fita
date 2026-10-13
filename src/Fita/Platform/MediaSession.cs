@@ -5,10 +5,10 @@ namespace Fita.Platform;
 public enum MediaCommand { Play, Pause, PlayPause, Stop, Next, Previous, Raise }
 
 /// <summary>
-/// O que está a tocar, como o sistema o mostra (painel multimédia, ecrã de bloqueio). Path
+/// O que está a tocar, como o sistema o mostra (painel multimédia, ecrã de bloqueio). Id
 /// identifica a faixa: a mesma faixa volta a ser enviada quando chegam as etiquetas ou a capa.
 /// </summary>
-public sealed record NowPlaying(string Path, string Title, string? Artist, string? Album, uint TrackNumber, double Duration, byte[]? Cover);
+public sealed record NowPlaying(string Id, string Title, string? Artist, string? Album, uint TrackNumber, double Duration, byte[]? Cover);
 
 /// <summary>
 /// A Fita vista pelo sistema: no Windows o painel multimédia (SMTC), no Linux o MPRIS. É também

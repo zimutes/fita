@@ -353,7 +353,7 @@ public partial class MainWindow
         {
             AllowMultiple = true,
             Title = Loc.T("OpenPlaylist").TrimEnd('…'),
-            FileTypeFilter = [new FilePickerFileType("M3U / PLS") { Patterns = ["*.m3u", "*.m3u8", "*.pls"] }],
+            FileTypeFilter = [new FilePickerFileType("M3U / PLS / CUE") { Patterns = ["*.m3u", "*.m3u8", "*.pls", "*.cue"] }],
             SuggestedStartLocation = await StartFolder(),
         });
         await AddPathsAsync(files.Select(f => f.TryGetLocalPath()).OfType<string>().ToList(), play: false);

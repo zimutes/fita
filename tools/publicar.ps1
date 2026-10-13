@@ -48,7 +48,7 @@ $lnk.Save()
 $audio = '.mp3', '.mp2', '.flac', '.ogg', '.oga', '.opus', '.wav', '.w64', '.aif', '.aiff', '.aifc', '.m4a', '.m4b',
     '.aac', '.wma', '.ape', '.wv', '.mka', '.mpc', '.tta', '.ac3', '.dts', '.dsf', '.dff', '.caf', '.tak',
     '.mod', '.xm', '.it', '.s3m'
-$listas = '.m3u', '.m3u8', '.pls'
+$listas = '.m3u', '.m3u8', '.pls', '.cue'
 $abrir = "`"$exe`" `"%1`""
 $app = 'HKCU:\Software\Classes\Applications\Fita.exe'
 New-Item -Path "$app\shell\open\command" -Force | Out-Null

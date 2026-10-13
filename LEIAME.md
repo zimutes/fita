@@ -53,6 +53,9 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 - **Cada nível tem uma caixa onde se escreve o valor:** volume, balanço (`E30`, `C`, `D30`),
   pré-amplificador e cada banda. Enter aplica; vazio + Enter ou duplo clique repõe (volume 80,
   balanço ao centro, 0 dB). Setas e roda do rato andam um passo.
+- **Folhas CUE:** um disco inteiro num só FLAC/APE/WAV com um `.cue` ao lado toca faixa a
+  faixa (abra o `.cue`, ou junte a pasta), e cada faixa passa à seguinte sem silêncio nem
+  estalido, porque o mesmo leitor continua por cima da fronteira.
 - **Lista de reprodução:** arraste ficheiros, pastas ou listas M3U/PLS; mude a ordem a
   arrastar; procure enquanto escreve (`J`); ordene por título, artista, álbum, ficheiro, pasta
   ou duração; tire repetidas ou ficheiros que já não existem; guarde em M3U8 ou PLS. Lembra-se
@@ -193,7 +196,8 @@ dotnet test tests/Fita.Tests
 
 - `src/Fita/Audio/`: o motor (`AudioEngine`), o ffmpeg (`FfmpegDecoder`, `FfmpegLocator`),
   o OpenAL (`OpenAl`, `AlOutput`), o equalizador (`Equalizer`) e o espectro (`SpectrumAnalyzer`).
-- `src/Fita/Library/`: faixas, ordem da lista (aleatório, repetir), M3U/PLS, etiquetas.
+- `src/Fita/Library/`: faixas, ordem da lista (aleatório, repetir), M3U/PLS, folhas CUE,
+  etiquetas, capas.
 - `src/Fita/Themes/`: os seis temas (`Catalog`) e como se aplicam (`ThemeManager`).
 - `src/Fita/Controls/`: controlos desenhados à mão (deslizadores, espectro, gráfico do EQ,
   título a correr).

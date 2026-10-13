@@ -15,7 +15,7 @@ public static class PlaylistFiles
         ".mod", ".xm", ".it", ".s3m", ".mptm", ".669", ".mtm", ".stm", ".nsf", ".spc", ".vgm", ".vgz", ".gbs",
     };
 
-    public static readonly HashSet<string> PlaylistExtensions = new(StringComparer.OrdinalIgnoreCase) { ".m3u", ".m3u8", ".pls" };
+    public static readonly HashSet<string> PlaylistExtensions = new(StringComparer.OrdinalIgnoreCase) { ".m3u", ".m3u8", ".pls", ".cue" };
 
     public static bool IsAudio(string path) => AudioExtensions.Contains(Path.GetExtension(path));
     public static bool IsPlaylist(string path) => PlaylistExtensions.Contains(Path.GetExtension(path));
@@ -40,10 +40,7 @@ public static class PlaylistFiles
                 continue;
             }
             if (Directory.Exists(path))
-            {
-                foreach (var file in EnumerateFolder(path, ct))
-                    result.Add(new Track(file));
-            }
+                result.AddRange(ExpandFolder(path, ct));
             else if (IsPlaylist(path) && File.Exists(path))
                 result.AddRange(Read(path));
             else if (IsAudio(path))
@@ -52,9 +49,39 @@ public static class PlaylistFiles
         return result;
     }
 
-    private static IEnumerable<string> EnumerateFolder(string root, CancellationToken ct)
+    /// <summary>
+    /// As faixas de uma pasta. Um disco com .cue (um ficheiro grande e a folha) entra pelas
+    /// faixas do .cue, no lugar do ficheiro inteiro.
+    /// </summary>
+    private static List<Track> ExpandFolder(string root, CancellationToken ct)
+    {
+        var (audio, cues) = EnumerateFolder(root, ct);
+        var byFile = new Dictionary<string, List<Track>>(Playlist.PathComparer);
+        foreach (var cue in cues)
+        {
+            ct.ThrowIfCancellationRequested();
+            var parts = CueSheet.Read(cue);
+            // Só conta se tiver mesmo vários troços (há .cue de faixas soltas, um ficheiro cada).
+            if (!parts.Any(p => p.IsPart))
+                continue;
+            foreach (var group in parts.GroupBy(p => p.Path, Playlist.PathComparer))
+                byFile.TryAdd(group.Key, group.ToList());
+        }
+        var result = new List<Track>();
+        foreach (var file in audio)
+        {
+            if (byFile.Remove(file, out var parts))
+                result.AddRange(parts);
+            else
+                result.Add(new Track(file));
+        }
+        return result;
+    }
+
+    private static (List<string> Audio, List<string> Cues) EnumerateFolder(string root, CancellationToken ct)
     {
         var files = new List<string>();
+        var cues = new List<string>();
         var options = new EnumerationOptions
         {
             RecurseSubdirectories = true,
@@ -69,18 +96,23 @@ public static class PlaylistFiles
                 ct.ThrowIfCancellationRequested();
                 if (IsAudio(file))
                     files.Add(file);
+                else if (Path.GetExtension(file).Equals(".cue", StringComparison.OrdinalIgnoreCase))
+                    cues.Add(file);
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
         }
         files.Sort(NaturalComparer.Instance);
-        return files;
+        cues.Sort(NaturalComparer.Instance);
+        return (files, cues);
     }
 
-    /// <summary>Lê uma lista M3U/M3U8/PLS. Caminhos relativos contam a partir da pasta da lista.</summary>
+    /// <summary>Lê uma lista M3U/M3U8/PLS ou um .cue. Caminhos relativos contam a partir da pasta da lista.</summary>
     public static List<Track> Read(string playlist)
     {
+        if (Path.GetExtension(playlist).Equals(".cue", StringComparison.OrdinalIgnoreCase))
+            return CueSheet.Read(playlist);
         var tracks = new List<Track>();
         string[] lines;
         try
@@ -161,12 +193,24 @@ public static class PlaylistFiles
         return tracks;
     }
 
-    /// <summary>Escreve M3U8 (UTF-8) ou PLS, conforme a extensão. Caminhos relativos quando dá.</summary>
+    /// <summary>
+    /// Escreve M3U8 (UTF-8) ou PLS, conforme a extensão. Caminhos relativos quando dá. As faixas
+    /// de um .cue seguidas do mesmo ficheiro ficam numa só entrada (o M3U não tem troços).
+    /// </summary>
     public static void Write(string playlist, IEnumerable<Track> tracks)
     {
         var folder = Path.GetDirectoryName(Path.GetFullPath(playlist)) ?? "";
         var sb = new StringBuilder();
-        var list = tracks.ToList();
+        var list = new List<Track>();
+        Track? previous = null;
+        foreach (var t in tracks)
+        {
+            var sameFile = t.IsPart && previous is { IsPart: true } && Playlist.PathComparer.Equals(previous.Path, t.Path);
+            previous = t;
+            if (sameFile)
+                continue;
+            list.Add(t.IsPart ? new Track(t.Path) { Title = t.Album ?? Path.GetFileNameWithoutExtension(t.Path), Artist = t.Artist } : t);
+        }
         if (Path.GetExtension(playlist).Equals(".pls", StringComparison.OrdinalIgnoreCase))
         {
             sb.Append("[playlist]\n");

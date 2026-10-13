@@ -7,7 +7,8 @@ namespace Fita;
 /// <summary>
 /// "Fita --selftest ficheiro…": passa os ficheiros pelo motor inteiro (ffmpeg, EQ, limitador,
 /// OpenAL), em silêncio e sem janela, e confirma que a posição anda, que o salto funciona e que
-/// as faixas passam de uma para a outra. Serve para testar numa máquina sem interface.
+/// as faixas passam de uma para a outra. Aceita também pastas e listas (M3U, PLS, .cue). Serve
+/// para testar numa máquina sem interface.
 /// </summary>
 internal static class SelfTest
 {
@@ -18,17 +19,22 @@ internal static class SelfTest
         if (ffmpeg is null || files.Length == 0)
             return 2;
 
-        foreach (var f in files)
+        var tracks = PlaylistFiles.Expand(files);
+        foreach (var t in tracks)
         {
-            var meta = MetadataReader.Read(f, FfmpegLocator.FindFfprobe(ffmpeg));
-            Console.WriteLine($"  {Path.GetFileName(f)}: {meta.Codec} {meta.SampleRate} Hz {meta.Channels} ch {meta.Duration:0.00} s «{meta.Title}»");
+            var meta = MetadataReader.Read(t.Path, FfmpegLocator.FindFfprobe(ffmpeg));
+            meta.ApplyTo(t);
+            Console.WriteLine($"  {Name(t)}: {t.Codec} {t.SampleRate} Hz {t.Channels} ch {t.Duration:0.00} s"
+                + (t.IsPart ? $" (troço {t.Start:0.000}–{(t.End > 0 ? t.End.ToString("0.000") : "fim")} s)" : ""));
         }
+        if (tracks.Count == 0)
+            return 2;
 
-        var items = files.Select(f => new PlayItem(f, Path.GetFullPath(f))).ToList();
+        var items = tracks.Select(t => new PlayItem(t, t.Path, 1f, t.Start, t.End)).ToList();
         using var engine = new AudioEngine { Silent = true, FfmpegPath = ffmpeg };
         engine.NextItem = (current, _) =>
         {
-            var i = items.FindIndex(x => x.Path == current.Path);
+            var i = items.FindIndex(x => ReferenceEquals(x.Tag, current.Tag));
             return i >= 0 && i + 1 < items.Count ? items[i + 1] : null;
         };
         var eq = new EqSettings();
@@ -37,19 +43,19 @@ internal static class SelfTest
         engine.Play(items[0]);
 
         var clock = Stopwatch.StartNew();
-        var seen = new List<string>();
-        string? last = null;
+        var seen = new List<Track>();
+        Track? last = null;
         var seeked = false;
-        var limit = TimeSpan.FromSeconds(Math.Max(20, files.Length * 15));
+        var limit = TimeSpan.FromSeconds(Math.Max(20, tracks.Sum(t => t.Duration > 0 ? t.Duration : 15) + 10));
         var nextPrint = 0.0;
         while (clock.Elapsed < limit)
         {
             var s = engine.Snapshot();
-            if (s.Segment is not null && s.Segment.Item.Path != last)
+            if (s.Segment?.Item.Tag is Track current && current != last)
             {
-                last = s.Segment.Item.Path;
-                seen.Add(last);
-                Console.WriteLine($"{clock.Elapsed.TotalSeconds,6:0.00}s  faixa {seen.Count}: {Path.GetFileName(last)}");
+                last = current;
+                seen.Add(current);
+                Console.WriteLine($"{clock.Elapsed.TotalSeconds,6:0.00}s  faixa {seen.Count}: {Name(current)}  (pos {s.Position:0.00} s)");
             }
             if (clock.Elapsed.TotalSeconds >= nextPrint)
             {
@@ -72,10 +78,14 @@ internal static class SelfTest
         var failures = engine.Failures.ToList();
         foreach (var (item, message) in failures)
             Console.WriteLine($"FALHA {Path.GetFileName(item.Path)}: {message}");
+        if (last is not null && last.Duration > 0)
+            Console.WriteLine($"         última faixa: {last.Duration:0.00} s");
         if (engine.OutputError is { } error)
             Console.WriteLine($"Saída de som: {error}");
         var ok = engine.EndedCount > 0 && failures.Count == 0 && seen.Count == items.Count && engine.OutputError is null;
         Console.WriteLine(ok ? $"OK: {seen.Count} faixas em {clock.Elapsed.TotalSeconds:0.0} s" : "FALHOU");
         return ok ? 0 : 1;
     }
+
+    private static string Name(Track t) => t.Title ?? t.FileName;
 }

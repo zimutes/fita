@@ -31,24 +31,32 @@ public sealed record TrackMetadata
 
     public void ApplyTo(Track track)
     {
-        track.Title = Title;
-        track.Artist = Artist;
-        track.Album = Album;
-        track.TrackNumber = TrackNumber;
-        track.Year = Year;
-        track.Genre = Genre;
+        // Num troço de um .cue, os nomes vêm do .cue; o ficheiro só completa o que faltar.
+        var part = track.IsPart;
+        track.Title = part ? track.Title ?? Title : Title;
+        track.Artist = part ? track.Artist ?? Artist : Artist;
+        track.Album = part ? track.Album ?? Album : Album;
+        track.TrackNumber = part && track.TrackNumber > 0 ? track.TrackNumber : TrackNumber;
+        track.Year = part && track.Year > 0 ? track.Year : Year;
+        track.Genre = part ? track.Genre ?? Genre : Genre;
         track.Bitrate = Bitrate;
         track.SampleRate = SampleRate;
         track.Channels = Channels;
         track.BitsPerSample = BitsPerSample;
         track.Codec = Codec;
-        track.TrackGain = TrackGain;
-        track.AlbumGain = AlbumGain;
-        track.TrackPeak = TrackPeak;
-        track.AlbumPeak = AlbumPeak;
+        if (!part || double.IsNaN(track.AlbumGain))
+        {
+            // O ganho "de faixa" do ficheiro é, num .cue, o do disco inteiro.
+            track.TrackGain = part ? double.NaN : TrackGain;
+            track.TrackPeak = part ? double.NaN : TrackPeak;
+            track.AlbumGain = part && double.IsNaN(AlbumGain) ? TrackGain : AlbumGain;
+            track.AlbumPeak = part && double.IsNaN(AlbumPeak) ? TrackPeak : AlbumPeak;
+        }
         track.FileSize = FileSize;
         track.Modified = Modified;
-        track.Duration = Duration;
+        track.Duration = !part ? Duration
+            : track.End > 0 ? track.End - track.Start
+            : Math.Max(0, Duration - track.Start);
         track.MetadataLoaded = true;
         track.RefreshInfo();
     }

@@ -57,6 +57,9 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 - **Every level has a box you can type in:** volume, balance (`L30`, `C`, `R30`), preamp and
   each band. Enter applies; empty + Enter or a double-click puts it back to default (volume 80,
   balance centre, 0 dB). Arrows and the mouse wheel move one step.
+- **CUE sheets:** a whole album in one FLAC/APE/WAV with a `.cue` next to it plays as its
+  separate tracks (open the `.cue`, or add the folder), and one track flows into the next
+  with no gap or click, because the same decoder keeps going across the boundary.
 - **Playlist:** drag files, folders or M3U/PLS lists in; reorder by dragging; search as you
   type (`J`); sort by title, artist, album, file, folder or length; remove duplicates or
   missing files; save as M3U8 or PLS. It remembers the list, the track and where you stopped.
@@ -193,7 +196,8 @@ dotnet test tests/Fita.Tests
 
 - `src/Fita/Audio/`: the engine (`AudioEngine`), ffmpeg (`FfmpegDecoder`, `FfmpegLocator`),
   OpenAL (`OpenAl`, `AlOutput`), the equalizer (`Equalizer`) and the spectrum (`SpectrumAnalyzer`).
-- `src/Fita/Library/`: tracks, playlist order (shuffle, repeat), M3U/PLS, tags.
+- `src/Fita/Library/`: tracks, playlist order (shuffle, repeat), M3U/PLS, CUE sheets, tags,
+  album art.
 - `src/Fita/Themes/`: the six themes (`Catalog`) and how they are applied (`ThemeManager`).
 - `src/Fita/Controls/`: hand-drawn controls (sliders, spectrum, EQ graph, scrolling title).
 - `src/Fita/Views/`: the window, split by area (playback, playlist, EQ, menus, frame).

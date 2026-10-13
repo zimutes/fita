@@ -140,7 +140,7 @@ internal sealed class Mpris : IMediaSession, IMethodHandler
         lock (_lock)
         {
             // A mesma faixa (etiquetas ou capa a chegar) fica com o mesmo identificador.
-            if (track?.Path != _track?.Path)
+            if (track?.Id != _track?.Id)
                 _trackSerial++;
             _track = track;
             _artUrl = track?.Cover is { Length: > 0 } cover ? WriteCover(cover) : null;
