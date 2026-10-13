@@ -23,7 +23,7 @@ internal sealed class FfmpegDecoder : IDisposable
     private int _pending;
     private readonly Queue<string> _errors = new();
 
-    public FfmpegDecoder(string ffmpeg, string file, double startSeconds, int sampleRate)
+    public FfmpegDecoder(string ffmpeg, string file, double startSeconds, int sampleRate, PlaybackSpeed speed = default)
     {
         var start = new ProcessStartInfo(ffmpeg)
         {
@@ -44,8 +44,19 @@ internal sealed class FfmpegDecoder : IDisposable
             start.ArgumentList.Add(startSeconds.ToString("0.######", System.Globalization.CultureInfo.InvariantCulture));
         }
         // O prefixo "file:" impede que um nome seja lido como protocolo ou como opção.
-        foreach (var a in (string[])["-i", "file:" + file, "-map", "0:a:0", "-vn", "-sn", "-dn",
-                     "-ac", "2", "-ar", sampleRate.ToString(System.Globalization.CultureInfo.InvariantCulture),
+        foreach (var a in (string[])["-i", "file:" + file, "-map", "0:a:0", "-vn", "-sn", "-dn"])
+            start.ArgumentList.Add(a);
+        if (speed.Factor > 0 && !speed.IsNormal)
+        {
+            var invariant = System.Globalization.CultureInfo.InvariantCulture;
+            // atempo estica o tempo sem mexer no tom; asetrate muda os dois, como uma fita mais
+            // depressa (e o -ar volta a pôr tudo à frequência da saída).
+            start.ArgumentList.Add("-af");
+            start.ArgumentList.Add(speed.KeepPitch
+                ? "atempo=" + speed.Factor.ToString("0.####", invariant)
+                : $"aresample={sampleRate.ToString(invariant)},asetrate={((int)Math.Round(sampleRate * speed.Factor)).ToString(invariant)}");
+        }
+        foreach (var a in (string[])["-ac", "2", "-ar", sampleRate.ToString(System.Globalization.CultureInfo.InvariantCulture),
                      "-c:a", "pcm_f32le", "-f", "f32le", "pipe:1"])
             start.ArgumentList.Add(a);
 

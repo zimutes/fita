@@ -32,6 +32,11 @@ public sealed class LevelSlider : Control
     /// <summary>Barra de posição: mais fina e sem cursor enquanto não há faixa.</summary>
     public static readonly StyledProperty<bool> IsSeekBarProperty =
         AvaloniaProperty.Register<LevelSlider, bool>(nameof(IsSeekBar));
+    /// <summary>Na barra de posição: as marcas do ciclo A-B (frações de 0 a 1).</summary>
+    public static readonly StyledProperty<double?> MarkAProperty =
+        AvaloniaProperty.Register<LevelSlider, double?>(nameof(MarkA));
+    public static readonly StyledProperty<double?> MarkBProperty =
+        AvaloniaProperty.Register<LevelSlider, double?>(nameof(MarkB));
     /// <summary>Na barra de posição: a forma de onda da faixa (0 a 1), desenhada no lugar da calha.</summary>
     public static readonly StyledProperty<float[]?> WaveformProperty =
         AvaloniaProperty.Register<LevelSlider, float[]?>(nameof(Waveform));
@@ -39,7 +44,7 @@ public sealed class LevelSlider : Control
     static LevelSlider()
     {
         AffectsRender<LevelSlider>(MinimumProperty, MaximumProperty, ValueProperty, OriginProperty,
-            OrientationProperty, IsEnabledProperty, IsSeekBarProperty, WaveformProperty);
+            OrientationProperty, IsEnabledProperty, IsSeekBarProperty, WaveformProperty, MarkAProperty, MarkBProperty);
         FocusableProperty.OverrideDefaultValue<LevelSlider>(false);
     }
 
@@ -61,6 +66,8 @@ public sealed class LevelSlider : Control
     public Orientation Orientation { get => GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
     public bool IsSeekBar { get => GetValue(IsSeekBarProperty); set => SetValue(IsSeekBarProperty, value); }
     public float[]? Waveform { get => GetValue(WaveformProperty); set => SetValue(WaveformProperty, value); }
+    public double? MarkA { get => GetValue(MarkAProperty); set => SetValue(MarkAProperty, value); }
+    public double? MarkB { get => GetValue(MarkBProperty); set => SetValue(MarkBProperty, value); }
 
     public bool IsDragging => _dragging;
 
@@ -178,6 +185,36 @@ public sealed class LevelSlider : Control
             return;
         var dim = IsEnabled ? 1.0 : 0.45;
         using var opacity = context.PushOpacity(dim);
+        try
+        {
+            RenderLook(context, t, w, h);
+        }
+        finally
+        {
+            if (IsSeekBar && !Vertical && IsEnabled)
+                DrawLoopMarks(context, t, w, h);
+        }
+    }
+
+    /// <summary>As marcas do ciclo A-B: um traço em cada ponta e, ligado, a zona entre elas realçada.</summary>
+    private void DrawLoopMarks(DrawingContext context, ThemeDef t, double w, double h)
+    {
+        if (MarkA is not { } a)
+            return;
+        var length = w - 2 * Pad;
+        var brush = new SolidColorBrush(t.Accent);
+        var xa = Pad + a * length;
+        if (MarkB is { } b)
+        {
+            var xb = Pad + b * length;
+            context.FillRectangle(new SolidColorBrush(t.Accent, 0.18), new Rect(xa, 0, Math.Max(1, xb - xa), h));
+            context.FillRectangle(brush, new Rect(xb - 1, 0, 2, h));
+        }
+        context.FillRectangle(brush, new Rect(xa - 1, 0, 2, h));
+    }
+
+    private void RenderLook(DrawingContext context, ThemeDef t, double w, double h)
+    {
 
         var length = (Vertical ? h : w) - 2 * Pad;
         var cross = Vertical ? w / 2 : h / 2;

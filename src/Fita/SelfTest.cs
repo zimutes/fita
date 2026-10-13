@@ -44,6 +44,10 @@ internal static class SelfTest
         if (double.TryParse(Environment.GetEnvironmentVariable("FITA_CROSSFADE"), System.Globalization.NumberStyles.Float,
                 System.Globalization.CultureInfo.InvariantCulture, out var crossfade))
             engine.CrossfadeSeconds = crossfade;
+        // FITA_SPEED=1.5 (ou 1.5t, como uma fita): o mesmo teste a outra velocidade.
+        if (Environment.GetEnvironmentVariable("FITA_SPEED") is { Length: > 0 } speedText
+            && double.TryParse(speedText.TrimEnd('t'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var speed))
+            engine.Speed = new PlaybackSpeed(speed, KeepPitch: !speedText.EndsWith('t'));
         engine.Play(items[0]);
 
         var clock = Stopwatch.StartNew();
@@ -52,6 +56,14 @@ internal static class SelfTest
         var seeked = false;
         var limit = TimeSpan.FromSeconds(Math.Max(20, tracks.Sum(t => t.Duration > 0 ? t.Duration : 15) + 10));
         var nextPrint = 0.0;
+        (double A, double B)? loop = null;
+        if (Environment.GetEnvironmentVariable("FITA_LOOP")?.Split(',') is [var la, var lb]
+            && double.TryParse(la, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var loopA)
+            && double.TryParse(lb, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var loopB))
+            loop = (loopA, loopB);
+        var lastPosition = 0.0;
+        var loops = 0;
+        var loopStarted = false;
         while (clock.Elapsed < limit)
         {
             var s = engine.Snapshot();
@@ -66,6 +78,24 @@ internal static class SelfTest
                 nextPrint += 1;
                 Console.WriteLine($"{clock.Elapsed.TotalSeconds,6:0.00}s  {s.State} pos {s.Position:0.00} s  {engine.SampleRate} Hz{(engine.LimiterActive ? "  [limitador]" : "")}");
             }
+            // FITA_LOOP=a,b: depois do salto, liga o ciclo A-B e confirma que volta ao A.
+            if (seeked && loop is { } ab && !loopStarted && clock.Elapsed.TotalSeconds > 2)
+            {
+                loopStarted = true;
+                engine.SetLoop(ab.A, ab.B);
+                Console.WriteLine($"         ciclo A-B {ab.A:0.0}–{ab.B:0.0} s");
+            }
+            if (engine.Loop is not null && s.Position < lastPosition - 0.5)
+            {
+                loops++;
+                Console.WriteLine($"         voltou ao A: {lastPosition:0.00} → {s.Position:0.00} s");
+                if (loops >= 2)
+                {
+                    engine.ClearLoop();
+                    Console.WriteLine("         ciclo desligado");
+                }
+            }
+            lastPosition = s.Position;
             if (!seeked && seen.Count == 1 && s.Position > 1.2)
             {
                 seeked = true;
@@ -86,7 +116,7 @@ internal static class SelfTest
             Console.WriteLine($"         última faixa: {last.Duration:0.00} s");
         if (engine.OutputError is { } error)
             Console.WriteLine($"Saída de som: {error}");
-        var ok = engine.EndedCount > 0 && failures.Count == 0 && seen.Count == items.Count && engine.OutputError is null;
+        var ok = (loop is null || loops >= 2) && engine.EndedCount > 0 && failures.Count == 0 && seen.Count == items.Count && engine.OutputError is null;
         Console.WriteLine(ok ? $"OK: {seen.Count} faixas em {clock.Elapsed.TotalSeconds:0.0} s" : "FALHOU");
         return ok ? 0 : 1;
     }

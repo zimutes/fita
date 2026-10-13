@@ -11,11 +11,20 @@ public enum PlayState { Stopped, Playing, Paused }
 /// </summary>
 public sealed record PlayItem(object? Tag, string Path, float Gain = 1f, double Start = 0, double End = 0, bool Gapless = false);
 
-/// <summary>Um troço contínuo de som: uma faixa a partir de um certo segundo.</summary>
-public sealed class Segment(PlayItem item, double startSeconds)
+/// <summary>Um troço contínuo de som: uma faixa a partir de um certo segundo, a uma velocidade.</summary>
+public sealed class Segment(PlayItem item, double startSeconds, double speed = 1)
 {
     public PlayItem Item { get; } = item;
     public double StartSeconds { get; } = startSeconds;
+    /// <summary>Segundos da faixa por segundo tocado.</summary>
+    public double Speed { get; } = speed;
+}
+
+/// <summary>Velocidade de reprodução. KeepPitch falso: como uma fita, mais depressa é mais agudo.</summary>
+public readonly record struct PlaybackSpeed(double Factor, bool KeepPitch)
+{
+    public static readonly PlaybackSpeed Normal = new(1, true);
+    public bool IsNormal => Math.Abs(Factor - 1) < 0.0005;
 }
 
 /// <summary>Fotografia do motor, tirada de uma vez para o estado, a faixa e a posição baterem certo.</summary>
@@ -84,6 +93,68 @@ public sealed class AudioEngine : IDisposable
     public bool Silent { get; init; }
 
     public string? FfmpegPath { get; set; }
+
+    private PlaybackSpeed _speed = PlaybackSpeed.Normal;
+    private (PlayItem Item, double A, double B)? _loop;
+
+    /// <summary>
+    /// Ciclo A-B na faixa atual (segundos da faixa): toca de A a B e volta a A sem parar, até
+    /// se desligar ou mudar de faixa. Ligar salta logo para A.
+    /// </summary>
+    public void SetLoop(double a, double b)
+    {
+        var snap = Snapshot();
+        if (snap.Segment is null || snap.State == PlayState.Stopped || b - a < 0.2)
+            return;
+        lock (_sync)
+            _loop = (snap.Segment.Item, a, b);
+        Play(snap.Segment.Item, a, snap.State == PlayState.Paused);
+    }
+
+    /// <summary>Desliga o ciclo e continua do ponto onde está (o que já estava lido para trás sai da fila).</summary>
+    public void ClearLoop()
+    {
+        lock (_sync)
+        {
+            if (_loop is null)
+                return;
+            _loop = null;
+        }
+        var snap = Snapshot();
+        if (snap.Segment is not null && snap.State != PlayState.Stopped)
+            Play(snap.Segment.Item, snap.Position, snap.State == PlayState.Paused);
+    }
+
+    public (double A, double B)? Loop
+    {
+        get { lock (_sync) return _loop is { } l ? (l.A, l.B) : null; }
+    }
+
+    private (double A, double B)? LoopFor(PlayItem item)
+    {
+        lock (_sync)
+            return _loop is { } l && ReferenceEquals(l.Item, item) ? (l.A, l.B) : null;
+    }
+
+    /// <summary>Velocidade (0,5× a 2×). Mudar a meio retoma a faixa no mesmo ponto já à nova velocidade.</summary>
+    public PlaybackSpeed Speed
+    {
+        get { lock (_sync) return _speed; }
+        set
+        {
+            var v = value with { Factor = Math.Clamp(value.Factor, 0.5, 2) };
+            EngineSnapshot snap;
+            lock (_sync)
+            {
+                if (v == _speed)
+                    return;
+                _speed = v;
+            }
+            snap = Snapshot();
+            if (snap.Segment is not null && snap.State != PlayState.Stopped)
+                Play(snap.Segment.Item, snap.Position, snap.State == PlayState.Paused);
+        }
+    }
 
     /// <summary>
     /// Segundos de crossfade entre faixas (0: sem, passagem sem silêncio). Mudar a meio vale a
@@ -180,13 +251,16 @@ public sealed class AudioEngine : IDisposable
         var start = Math.Max(0, startSeconds);
         lock (_sync)
         {
+            // O ciclo é de uma faixa: outra faixa desliga-o.
+            if (_loop is { } loop && !ReferenceEquals(loop.Item, item))
+                _loop = null;
             _decoderCts?.Cancel();
             gen = ++_gen;
             _flush = true;
             _queue.Clear();
             _queuedFrames = 0;
             _boundaries.Clear();
-            _pending = new Segment(item, start);
+            _pending = new Segment(item, start, _speed.Factor);
             _state = paused ? PlayState.Paused : PlayState.Playing;
             _endedByStopAfter = false;
             cts = _decoderCts = new CancellationTokenSource();
@@ -216,6 +290,7 @@ public sealed class AudioEngine : IDisposable
     {
         lock (_sync)
         {
+            _loop = null;
             _decoderCts?.Cancel();
             _decoderCts = null;
             _gen++;
@@ -252,7 +327,7 @@ public sealed class AudioEngine : IDisposable
                 if (frame > played)
                     continue;
                 segment = seg;
-                position = seg.StartSeconds + (played - frame) / (double)_rate;
+                position = seg.StartSeconds + (played - frame) / (double)_rate * seg.Speed;
                 // As fronteiras para trás já não interessam.
                 if (i > 0)
                     _boundaries.RemoveRange(0, i);
@@ -292,19 +367,30 @@ public sealed class AudioEngine : IDisposable
             var failures = 0;
             // O ffmpeg parado no fim de um troço, à espera de ver se a faixa seguinte o continua.
             FfmpegDecoder? open = null;
+            var speed = Speed;
             var holdFrames = CrossfadeFrames;
             var fade = holdFrames > 0 ? new Crossfade(gen, holdFrames, c => Push(c, ct)) : null;
             try
             {
                 while (!ct.IsCancellationRequested)
                 {
-                    var ok = DecodeOne(gen, new Segment(item, offset), ref open, fade, ct);
+                    var ok = DecodeOne(gen, new Segment(item, offset, speed.Factor), ref open, fade, speed, ct);
                     if (ok)
                         failures = 0;
                     else if (++failures >= 8)
                         break;
                     if (ct.IsCancellationRequested)
                         return;
+                    // Ciclo A-B: chegou ao B, volta ao A (um ffmpeg novo a partir dali).
+                    if (ok && LoopFor(item) is { } loop)
+                    {
+                        open?.Dispose();
+                        open = null;
+                        if (fade is not null && !fade.EndTrack(crossfade: false))
+                            return;
+                        offset = loop.A;
+                        continue;
+                    }
                     PlayItem? next;
                     try
                     {
@@ -361,7 +447,7 @@ public sealed class AudioEngine : IDisposable
     /// entrada, um ffmpeg já no sítio certo (a faixa anterior do mesmo ficheiro); à saída, o
     /// ffmpeg a guardar se o troço acabou antes do fim do ficheiro.
     /// </summary>
-    private bool DecodeOne(int gen, Segment segment, ref FfmpegDecoder? open, Crossfade? fade, CancellationToken ct)
+    private bool DecodeOne(int gen, Segment segment, ref FfmpegDecoder? open, Crossfade? fade, PlaybackSpeed speed, CancellationToken ct)
     {
         var decoder = open;
         open = null;
@@ -375,7 +461,7 @@ public sealed class AudioEngine : IDisposable
             }
             try
             {
-                decoder = new FfmpegDecoder(ffmpeg, segment.Item.Path, segment.Item.Start + segment.StartSeconds, _rate);
+                decoder = new FfmpegDecoder(ffmpeg, segment.Item.Path, segment.Item.Start + segment.StartSeconds, _rate, speed);
             }
             catch (Exception ex)
             {
@@ -385,10 +471,19 @@ public sealed class AudioEngine : IDisposable
         }
 
         // Num troço, para-se na amostra certa: a faixa seguinte do mesmo ficheiro começa exatamente
-        // aí, e a passagem fica sem cortes nem repetições.
-        var left = segment.Item.End > 0
-            ? (long)Math.Round((segment.Item.End - segment.Item.Start - segment.StartSeconds) * _rate)
+        // aí, e a passagem fica sem cortes nem repetições. Com ciclo A-B, para-se no B.
+        var stopAt = segment.Item.End > 0 ? segment.Item.End - segment.Item.Start : double.MaxValue;
+        if (LoopFor(segment.Item) is { } loop)
+            stopAt = Math.Min(stopAt, loop.B);
+        var left = stopAt < double.MaxValue
+            ? Math.Max(0, (long)Math.Round((stopAt - segment.StartSeconds) * _rate / speed.Factor))
             : long.MaxValue;
+        if (left == 0)
+        {
+            // Já para lá do fim (um salto depois do B): nada a ler, e não é erro.
+            decoder.Dispose();
+            return true;
+        }
         var keep = false;
         try
         {

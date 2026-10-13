@@ -53,6 +53,7 @@ public partial class MainWindow
         vis.Items.Add(new Separator());
         vis.Items.Add(Check(Loc.T("ShowCover"), _settings.ShowCover, () => SetShowCover(!_settings.ShowCover)));
         vis.Items.Add(Check(Loc.T("ShowWaveform"), _settings.ShowWaveform, () => SetShowWaveform(!_settings.ShowWaveform)));
+        vis.Items.Add(Check(Loc.T("ShowLyrics"), _settings.ShowLyrics, () => SetShowLyrics(!_settings.ShowLyrics)));
         menu.Items.Add(vis);
 
         var rg = new MenuItem { Header = Loc.T("ReplayGain") };
@@ -67,13 +68,34 @@ public partial class MainWindow
         }));
         menu.Items.Add(rg);
 
+        // Reprodução: o que muda a maneira de tocar, junto, para o menu principal não crescer.
+        var playback = new MenuItem { Header = Loc.T("Playback") };
         var crossfade = new MenuItem { Header = Loc.T("Crossfade") };
         crossfade.Items.Add(Radio(Loc.T("CrossfadeOff"), _settings.Crossfade <= 0, () => SetCrossfade(0)));
         foreach (var seconds in new[] { 2, 4, 6, 8 })
             crossfade.Items.Add(Radio($"{seconds} s", Math.Abs(_settings.Crossfade - seconds) < 0.01, () => SetCrossfade(seconds)));
         crossfade.Items.Add(new Separator());
         crossfade.Items.Add(new MenuItem { Header = Loc.T("CrossfadeNote"), IsEnabled = false });
-        menu.Items.Add(crossfade);
+        playback.Items.Add(crossfade);
+
+        var speed = new MenuItem { Header = Loc.T("Speed") };
+        foreach (var factor in Speeds)
+            speed.Items.Add(Radio(SpeedText(factor), Math.Abs(_settings.Speed - factor) < 0.0005, () => SetSpeed(factor, _settings.KeepPitch)));
+        speed.Items.Add(new Separator());
+        speed.Items.Add(Check(Loc.T("KeepPitch"), _settings.KeepPitch, () => SetSpeed(_settings.Speed, !_settings.KeepPitch)));
+        playback.Items.Add(speed);
+
+        var sleep = new MenuItem { Header = Loc.T("Sleep") };
+        sleep.Items.Add(Radio(Loc.T("Off"), _sleepChoice is null, () => SetSleep(null)));
+        foreach (var minutes in SleepMinutes)
+            sleep.Items.Add(Radio($"{minutes} min", _sleepChoice == minutes, () => SetSleep(minutes)));
+        playback.Items.Add(sleep);
+
+        playback.Items.Add(Plain(LoopMenuText(), CycleLoop));
+        playback.Items.Add(new Separator());
+        playback.Items.Add(Check(Loc.T("StopAfter"), _engine.StopAfterCurrent, ToggleStopAfter));
+        playback.Items.Add(Check(Loc.T("ResumeOption"), _settings.Resume, () => _settings.Resume = !_settings.Resume));
+        menu.Items.Add(playback);
 
         var output = new MenuItem { Header = Loc.T("Output") };
         output.Items.Add(Radio(Loc.T("DefaultDevice"), string.IsNullOrEmpty(_settings.OutputDevice), () => SetOutput("")));
@@ -82,8 +104,6 @@ public partial class MainWindow
         menu.Items.Add(output);
 
         menu.Items.Add(new Separator());
-        menu.Items.Add(Check(Loc.T("StopAfter"), _engine.StopAfterCurrent, ToggleStopAfter));
-        menu.Items.Add(Check(Loc.T("ResumeOption"), _settings.Resume, () => _settings.Resume = !_settings.Resume));
         menu.Items.Add(Check(Loc.T("AlwaysOnTop"), _settings.AlwaysOnTop, () =>
         {
             _settings.AlwaysOnTop = !_settings.AlwaysOnTop;
@@ -267,6 +287,7 @@ public partial class MainWindow
             ("Enter", "K.Enter"),
             ("Del", "K.Delete"),
             ("Alt+↑  Alt+↓", "K.Move"),
+            ("A", "K.Loop"),
         ];
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
         for (var i = 0; i < rows.Length; i++)

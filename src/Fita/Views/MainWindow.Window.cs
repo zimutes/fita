@@ -259,6 +259,7 @@ public partial class MainWindow
             case Key.W when ctrl: ToggleCompact(); break;
             case Key.T when ctrl: ToggleTimeMode(); break;
             case Key.T when plain: NextTheme(); break;
+            case Key.A when plain: CycleLoop(); break;
             case Key.Delete when PlaylistBox.SelectedItems is { Count: > 0 }: RemoveSelected(); break;
             case Key.Enter when inList && PlaylistBox.SelectedItem is Track t: PlayTrack(t); break;
             case Key.Escape when _settings.Compact: ToggleCompact(); break;

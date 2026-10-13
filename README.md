@@ -79,6 +79,11 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 - **ReplayGain** (track or album). Files without ReplayGain tags are measured in the
   background (EBU R128, with ffmpeg) so they play at the same level too: only the current
   track and the next few, at low priority, and each file once.
+- **Small extras that take no room:** playback speed from 0.5× to 2×, keeping the pitch or
+  like a tape (faster is higher); an A–B loop (press `A` at A, again at B, a third time to
+  stop; the marks show on the seek bar); a sleep timer that fades out before stopping;
+  synced lyrics (a `.lrc` next to the file, or timed lyrics in the tags) on the album line.
+  What is on shows at the start of the format line. They live in the *Playback* menu.
 - Output device choice, always on top, stop after current.
 - **Part of the system:** Fita shows up in the Windows media flyout and on the lock screen
   (on Linux, through MPRIS: GNOME, KDE, `playerctl`) with title, artist, album art and
@@ -110,6 +115,7 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 | `T` | Next theme |
 | `Ctrl+V` | Stop after the current track |
 | `Enter` · `Del` · `Alt+↑↓` | Play · remove · move the selected tracks |
+| `A` | A–B loop: set A, set B, off |
 
 ## What you need
 

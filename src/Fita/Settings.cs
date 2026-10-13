@@ -32,10 +32,15 @@ public sealed class AppSettings
     public bool ShowCover { get; set; } = true;
     /// <summary>A forma de onda da faixa na barra de posição.</summary>
     public bool ShowWaveform { get; set; } = true;
+    /// <summary>A letra sincronizada (.lrc ou etiqueta) na linha do álbum.</summary>
+    public bool ShowLyrics { get; set; } = true;
     public bool TimeRemaining { get; set; }
     public ReplayGainMode ReplayGain { get; set; }
     /// <summary>Segundos de crossfade entre faixas (0: passagem sem silêncio, o normal).</summary>
     public double Crossfade { get; set; }
+    /// <summary>Velocidade (0,5 a 2) e se mantém o tom (falso: como uma fita).</summary>
+    public double Speed { get; set; } = 1;
+    public bool KeepPitch { get; set; } = true;
     /// <summary>Medir (EBU R128) as faixas que não trazem ReplayGain.</summary>
     public bool LoudnessScan { get; set; } = true;
     /// <summary>Caminho escolhido à mão para o ffmpeg (vazio: procurar sozinho).</summary>
@@ -89,6 +94,7 @@ public static class SettingsStore
                 s.WindowWidth = Math.Clamp(double.IsFinite(s.WindowWidth) ? s.WindowWidth : 500, 420, 1600);
                 s.PlaylistHeight = Math.Clamp(double.IsFinite(s.PlaylistHeight) ? s.PlaylistHeight : 260, 120, 2000);
                 s.Crossfade = Math.Clamp(double.IsFinite(s.Crossfade) ? s.Crossfade : 0, 0, 12);
+                s.Speed = Math.Clamp(double.IsFinite(s.Speed) && s.Speed > 0 ? s.Speed : 1, 0.5, 2);
                 return s;
             }
         }

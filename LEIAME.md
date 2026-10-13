@@ -76,6 +76,12 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 - **ReplayGain** (por faixa ou por álbum). Os ficheiros sem etiquetas de ReplayGain são
   medidos em segundo plano (EBU R128, com o ffmpeg) para tocarem também ao mesmo volume: só a
   faixa atual e as próximas, com prioridade baixa, e cada ficheiro uma vez.
+- **Extras pequenos, que não ocupam espaço:** velocidade de 0,5× a 2×, mantendo o tom ou como
+  uma fita (mais depressa é mais agudo); ciclo A–B (carregue em `A` no A, outra vez no B e uma
+  terceira para desligar; as marcas aparecem na barra de posição); temporizador para dormir,
+  que baixa o som devagar antes de parar; letra sincronizada (um `.lrc` ao lado do ficheiro,
+  ou a letra com tempos nas etiquetas) na linha do álbum. O que estiver ligado aparece no
+  começo da linha do formato. Estão no menu *Reprodução*.
 - Escolha da saída de som, sempre à frente, parar depois desta.
 - **Parte do sistema:** a Fita aparece no painel multimédia do Windows e no ecrã de bloqueio
   (no Linux, por MPRIS: GNOME, KDE, `playerctl`) com título, artista, capa e posição, e recebe
@@ -107,6 +113,7 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 | `T` | Tema seguinte |
 | `Ctrl+V` | Parar depois desta faixa |
 | `Enter` · `Del` · `Alt+↑↓` | Tocar · tirar · mudar de lugar as faixas selecionadas |
+| `A` | Ciclo A–B: marcar o A, o B, desligar |
 
 ## O que é preciso
 

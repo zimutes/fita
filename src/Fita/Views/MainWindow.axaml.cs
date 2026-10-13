@@ -27,6 +27,8 @@ public partial class MainWindow : Window
     private string? _ffprobe;
 
     private Track? _shownTrack;
+    /// <summary>A faixa onde se marcou o A (mudar de faixa esquece-o).</summary>
+    private Track? _loopTrack;
     private PlayState _shownState = (PlayState)(-1);
     private int _lastEnded;
     private bool _frameLoop;
@@ -55,6 +57,7 @@ public partial class MainWindow : Window
             Volume = VolumeGain(_settings.Volume),
             Balance = (float)_settings.Balance,
             CrossfadeSeconds = _settings.Crossfade,
+            Speed = new PlaybackSpeed(_settings.Speed, _settings.KeepPitch),
         };
         _engine.NextItem = NextFromDecoder;
         _engine.ConfigureEq(_settings.Eq);
@@ -510,6 +513,13 @@ public partial class MainWindow : Window
             ShowTrackText();
             ShowCover(track);
             ShowWaveform(track);
+            LoadLyrics(track);
+            if (track != _loopTrack)
+            {
+                _loopTrack = track;
+                _loopA = null;
+            }
+            ShowLoopMarks();
         }
 
         var position = snap.State == PlayState.Stopped ? (_settings.Resume ? _resumeAt : 0) : snap.Position;
@@ -549,7 +559,7 @@ public partial class MainWindow : Window
         else if (snap.State == PlayState.Stopped)
             status = track is null ? Loc.T("Idle") : Loc.T("Stopped");
         else
-            status = AlbumLine(track);
+            status = LyricLine(track, position) ?? AlbumLine(track);
         if (StatusText.Text != status)
             StatusText.Text = status;
 
@@ -602,7 +612,9 @@ public partial class MainWindow : Window
         var duration = track.Duration > 0 ? $" ({Format.Time(track.Duration)})" : "";
         TitleMarquee.Text = $"{track.Number}. {track.Display}{duration}";
         MiniMarquee.Text = track.Display;
-        InfoText.Text = track.Info;
+        var extras = PlaybackExtras();
+        // À frente, para não ficar cortado quando a linha não cabe.
+        InfoText.Text = extras.Length == 0 ? track.Info : track.Info.Length == 0 ? extras : $"{extras} · {track.Info}";
         Title = $"{track.Display} · Fita";
     }
 
@@ -651,6 +663,7 @@ public partial class MainWindow : Window
             EnsureFrameLoop();
         }
         SyncSystem(_engine.Snapshot());
+        SleepTick();
         if (_blink % 8 == 0)
             ScanUpcoming();
         // As definições gravam-se também a meio (a cada ~10 s, se mudaram): se a app for fechada
