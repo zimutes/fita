@@ -717,6 +717,7 @@ public partial class MainWindow : Window
         Classes.Set("lift", t.HoverLifts);
         Classes.Set("motion", t.Motion);
         Classes.Set("bevel", t.Slider == SliderLook.Bevel);
+        ThemePanels(t);
         ShowRepeat();
         ApplyWindowCorners();
         Vis.InvalidateVisual();
@@ -748,6 +749,7 @@ public partial class MainWindow : Window
         base.OnClosed(e);
         _slowTimer.Stop();
         _vision?.Close();
+        ClosePanels();
         _engine.Dispose();
         _tags.Dispose();
         _loudness.Dispose();

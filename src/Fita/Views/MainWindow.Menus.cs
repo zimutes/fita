@@ -109,7 +109,11 @@ public partial class MainWindow
         {
             _settings.AlwaysOnTop = !_settings.AlwaysOnTop;
             Topmost = _settings.AlwaysOnTop;
+            foreach (var w in new Window?[] { _eqWindow, _plWindow })
+                if (w is not null)
+                    w.Topmost = _settings.AlwaysOnTop;
         }));
+        menu.Items.Add(Check(Loc.T("SeparateWindows"), _settings.SeparateWindows, () => SetSeparateWindows(!_settings.SeparateWindows)));
         if (OperatingSystem.IsWindows())
             menu.Items.Add(Check(Loc.T("TaskbarProgress"), _settings.TaskbarProgress, () => SetTaskbarProgress(!_settings.TaskbarProgress)));
         menu.Items.Add(new Separator());

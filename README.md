@@ -86,6 +86,9 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   changes more than colours: fonts, button shapes, relief or glow, how the sliders and the
   spectrum are drawn, even whether things animate.
 - **Compact mode** (the old *windowshade*): the whole player in the title bar.
+- **Separate windows, if you like it classic** (menu, off by default): the equalizer and the
+  playlist get small windows of their own that snap to the player, to each other and to the
+  screen edges, and dragging the player takes the snapped ones along, as in Winamp 2.
 - **ReplayGain** (track or album). Files without ReplayGain tags are measured in the
   background (EBU R128, with ffmpeg) so they play at the same level too: only the current
   track and the next few, at low priority, and each file once.

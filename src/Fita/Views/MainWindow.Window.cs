@@ -45,13 +45,16 @@ public partial class MainWindow
                 e.Handled = true;
                 return;
             }
+            // Com janelas separadas, é o WindowDock que arrasta (para colar as janelas).
+            if (Separate)
+                return;
             BeginMoveDrag(e);
             e.Handled = true;
         };
         // Como no Winamp, o mostrador também serve de pega para mover a janela.
         Lcd.PointerPressed += (_, e) =>
         {
-            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && !Separate)
                 BeginMoveDrag(e);
         };
 
@@ -77,7 +80,8 @@ public partial class MainWindow
         {
             if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
-                BeginResizeDrag(WindowEdge.SouthEast, e);
+                // A pega está na lista: redimensiona a janela onde a lista estiver.
+                (TopLevel.GetTopLevel(ResizeGrip) as Window ?? this).BeginResizeDrag(WindowEdge.SouthEast, e);
                 e.Handled = true;
             }
         };
@@ -104,6 +108,8 @@ public partial class MainWindow
             }, DispatcherPriority.Loaded);
             ApplyWindowCorners();
             StartSystemIntegration();
+            if (_settings.SeparateWindows)
+                Dispatcher.UIThread.Post(EnterSeparate, DispatcherPriority.Loaded);
             // Testes: abrir logo a visualização grande.
             if (Environment.GetEnvironmentVariable("FITA_VISION") == "1")
                 OpenVision();
@@ -129,6 +135,11 @@ public partial class MainWindow
     /// </summary>
     private void ApplyLayoutMode()
     {
+        if (Separate)
+        {
+            ApplySeparateLayout();
+            return;
+        }
         RememberPlaylistHeight();
         var compact = _settings.Compact;
         Body.IsVisible = !compact;
@@ -185,6 +196,7 @@ public partial class MainWindow
 
     private void RememberWindow()
     {
+        RememberPanels();
         if (WindowState != WindowState.Normal)
             return;
         RememberPlaylistHeight();
@@ -222,7 +234,8 @@ public partial class MainWindow
             return;
         }
 
-        var focused = FocusManager?.GetFocusedElement() as Visual;
+        // A tecla pode vir de uma janela de painel (modo de janelas separadas).
+        var focused = ((sender as TopLevel) ?? this).FocusManager?.GetFocusedElement() as Visual;
         if (focused is TextBox || e.Source is TextBox)
             return;
         var inList = focused?.FindAncestorOfType<ListBox>(includeSelf: true) == PlaylistBox;
@@ -248,8 +261,9 @@ public partial class MainWindow
             case Key.Up when !inList: ChangeVolume(4); break;
             case Key.Down when !inList: ChangeVolume(-4); break;
             case Key.J when plain:
-                if (!PlPanel.IsVisible)
+                if (!PlPanel.IsVisible || (Separate && _plWindow?.IsVisible != true))
                     PlToggle.IsChecked = true;
+                _plWindow?.Activate();
                 SearchBox.Focus();
                 SearchBox.SelectAll();
                 break;

@@ -58,6 +58,14 @@ public sealed class AppSettings
     public List<string> LibraryFolders { get; set; } = [];
     /// <summary>O painel de baixo mostra a biblioteca em vez da lista.</summary>
     public bool LibraryMode { get; set; }
+    /// <summary>Equalizador e lista em janelas à parte, coladas ao leitor (o Winamp clássico).</summary>
+    public bool SeparateWindows { get; set; }
+    public double? EqWindowX { get; set; }
+    public double? EqWindowY { get; set; }
+    public double? PlWindowX { get; set; }
+    public double? PlWindowY { get; set; }
+    public double? PlWindowWidth { get; set; }
+    public double? PlWindowHeight { get; set; }
 }
 
 public sealed class EqUserPreset

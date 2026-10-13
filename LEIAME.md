@@ -83,6 +83,9 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   do que as cores: fontes, forma dos botões, relevo ou brilho, o desenho dos controlos e do
   espectro, e até se há animação.
 - **Modo compacto** (o antigo *windowshade*): o leitor inteiro na barra de título.
+- **Janelas separadas, para quem gosta do clássico** (no menu, desligado por omissão): o
+  equalizador e a lista ganham janelas pequenas suas, que se colam ao leitor, umas às outras e
+  às bordas do ecrã, e arrastar o leitor leva as que estão coladas, como no Winamp 2.
 - **ReplayGain** (por faixa ou por álbum). Os ficheiros sem etiquetas de ReplayGain são
   medidos em segundo plano (EBU R128, com o ffmpeg) para tocarem também ao mesmo volume: só a
   faixa atual e as próximas, com prioridade baixa, e cada ficheiro uma vez.
