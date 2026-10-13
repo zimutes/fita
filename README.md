@@ -57,6 +57,9 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 - **Every level has a box you can type in:** volume, balance (`L30`, `C`, `R30`), preamp and
   each band. Enter applies; empty + Enter or a double-click puts it back to default (volume 80,
   balance centre, 0 dB). Arrows and the mouse wheel move one step.
+- **Crossfade if you want it** (off by default; 2 to 8 s, in the menu): equal-power, so the
+  level doesn't dip in the middle. Never within an album or between the tracks of a `.cue`:
+  those stay gapless.
 - **CUE sheets:** a whole album in one FLAC/APE/WAV with a `.cue` next to it plays as its
   separate tracks (open the `.cue`, or add the folder), and one track flows into the next
   with no gap or click, because the same decoder keeps going across the boundary.

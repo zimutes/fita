@@ -67,6 +67,14 @@ public partial class MainWindow
         }));
         menu.Items.Add(rg);
 
+        var crossfade = new MenuItem { Header = Loc.T("Crossfade") };
+        crossfade.Items.Add(Radio(Loc.T("CrossfadeOff"), _settings.Crossfade <= 0, () => SetCrossfade(0)));
+        foreach (var seconds in new[] { 2, 4, 6, 8 })
+            crossfade.Items.Add(Radio($"{seconds} s", Math.Abs(_settings.Crossfade - seconds) < 0.01, () => SetCrossfade(seconds)));
+        crossfade.Items.Add(new Separator());
+        crossfade.Items.Add(new MenuItem { Header = Loc.T("CrossfadeNote"), IsEnabled = false });
+        menu.Items.Add(crossfade);
+
         var output = new MenuItem { Header = Loc.T("Output") };
         output.Items.Add(Radio(Loc.T("DefaultDevice"), string.IsNullOrEmpty(_settings.OutputDevice), () => SetOutput("")));
         foreach (var device in AudioEngine.OutputDevices())
@@ -122,6 +130,13 @@ public partial class MainWindow
         _settings.ReplayGain = mode;
         ScanUpcoming();
         Refresh(force: true);
+    }
+
+    private void SetCrossfade(double seconds)
+    {
+        _settings.Crossfade = seconds;
+        _engine.CrossfadeSeconds = seconds;
+        ShowStatus(seconds > 0 ? $"{Loc.T("Crossfade")} {seconds:0} s" : Loc.T("CrossfadeOff"));
     }
 
     private void SetOutput(string device)

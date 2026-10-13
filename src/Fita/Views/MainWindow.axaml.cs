@@ -54,6 +54,7 @@ public partial class MainWindow : Window
             FfmpegPath = _ffmpeg,
             Volume = VolumeGain(_settings.Volume),
             Balance = (float)_settings.Balance,
+            CrossfadeSeconds = _settings.Crossfade,
         };
         _engine.NextItem = NextFromDecoder;
         _engine.ConfigureEq(_settings.Eq);
@@ -232,11 +233,13 @@ public partial class MainWindow : Window
         {
             var task = Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var next = _playlist.After(current.Tag as Track, automatic: true);
+                var previous = current.Tag as Track;
+                var next = _playlist.After(previous, automatic: true);
                 if (next is null)
                     return null;
                 _tags.Prioritize(next);
-                return ToPlayItem(next);
+                // Dentro de um disco não há crossfade: os discos ao vivo e as misturas correm inteiros.
+                return ToPlayItem(next) with { Gapless = SameAlbum(previous, next) };
             }).GetTask();
             task.Wait(ct);
             return task.Result;
@@ -246,6 +249,11 @@ public partial class MainWindow : Window
             return null;
         }
     }
+
+    private static bool SameAlbum(Track? a, Track? b) =>
+        a is not null && b is not null && !string.IsNullOrWhiteSpace(a.Album)
+        && string.Equals(a.Album, b.Album, StringComparison.CurrentCultureIgnoreCase)
+        && Playlist.PathComparer.Equals(Path.GetDirectoryName(a.Path), Path.GetDirectoryName(b.Path));
 
     private void PlayTrack(Track track, double start = 0)
     {

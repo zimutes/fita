@@ -7,9 +7,9 @@ public enum PlayState { Stopped, Playing, Paused }
 /// <summary>
 /// O que tocar: o item da lista (opaco para o motor), o ficheiro, o ganho (ReplayGain) e, numa
 /// faixa de um .cue, o troço do ficheiro em segundos (End 0: até ao fim). As posições do motor
-/// contam a partir de Start.
+/// contam a partir de Start. Gapless: encosta à anterior sem crossfade (o mesmo disco).
 /// </summary>
-public sealed record PlayItem(object? Tag, string Path, float Gain = 1f, double Start = 0, double End = 0);
+public sealed record PlayItem(object? Tag, string Path, float Gain = 1f, double Start = 0, double End = 0, bool Gapless = false);
 
 /// <summary>Um troço contínuo de som: uma faixa a partir de um certo segundo.</summary>
 public sealed class Segment(PlayItem item, double startSeconds)
@@ -33,15 +33,6 @@ public sealed class AudioEngine : IDisposable
     public const int BlockFrames = 1024;
     private const int ChunkFrames = 4096;
     private const double BufferAheadSeconds = 2.0;
-
-    private sealed class Chunk(int gen, float[] data, int frames)
-    {
-        public int Gen { get; } = gen;
-        public float[] Data { get; } = data;
-        public int Frames { get; } = frames;
-        public Segment? Start { get; init; }
-        public bool End { get; init; }
-    }
 
     // ── Estado partilhado (sempre sob _sync) ─────────────────────────────────
     private readonly object _sync = new();
@@ -93,6 +84,15 @@ public sealed class AudioEngine : IDisposable
     public bool Silent { get; init; }
 
     public string? FfmpegPath { get; set; }
+
+    /// <summary>
+    /// Segundos de crossfade entre faixas (0: sem, passagem sem silêncio). Mudar a meio vale a
+    /// partir da faixa seguinte; nunca se funde entre faixas marcadas Gapless nem entre troços
+    /// seguidos de um .cue.
+    /// </summary>
+    public double CrossfadeSeconds { get; set; }
+
+    private int CrossfadeFrames => (int)Math.Round(Math.Clamp(CrossfadeSeconds, 0, 12) * _rate);
 
     /// <summary>
     /// Chamado na thread de descodificação quando uma faixa acaba de ser lida: devolve a que se
@@ -292,11 +292,13 @@ public sealed class AudioEngine : IDisposable
             var failures = 0;
             // O ffmpeg parado no fim de um troço, à espera de ver se a faixa seguinte o continua.
             FfmpegDecoder? open = null;
+            var holdFrames = CrossfadeFrames;
+            var fade = holdFrames > 0 ? new Crossfade(gen, holdFrames, c => Push(c, ct)) : null;
             try
             {
                 while (!ct.IsCancellationRequested)
                 {
-                    var ok = DecodeOne(gen, new Segment(item, offset), ref open, ct);
+                    var ok = DecodeOne(gen, new Segment(item, offset), ref open, fade, ct);
                     if (ok)
                         failures = 0;
                     else if (++failures >= 8)
@@ -319,6 +321,17 @@ public sealed class AudioEngine : IDisposable
                         open.Dispose();
                         open = null;
                     }
+                    // O crossfade mudou nas definições: esta passagem fica sem, a seguinte já com o novo.
+                    var wanted = CrossfadeFrames;
+                    var changed = (fade?.Hold ?? 0) != wanted;
+                    if (fade is not null)
+                    {
+                        var crossfade = !changed && next is not null && !next.Gapless && !Continues(item, next) && !StopAfterCurrent;
+                        if (!fade.EndTrack(crossfade))
+                            return;
+                    }
+                    if (changed)
+                        fade = wanted > 0 ? new Crossfade(gen, wanted, c => Push(c, ct)) : null;
                     if (next is null)
                         break;
                     item = next;
@@ -329,6 +342,8 @@ public sealed class AudioEngine : IDisposable
             {
                 open?.Dispose();
             }
+            if (fade is not null && !ct.IsCancellationRequested)
+                fade.EndTrack(crossfade: false);
             if (!ct.IsCancellationRequested)
                 Push(new Chunk(gen, [], 0) { End = true }, ct);
         }
@@ -346,7 +361,7 @@ public sealed class AudioEngine : IDisposable
     /// entrada, um ffmpeg já no sítio certo (a faixa anterior do mesmo ficheiro); à saída, o
     /// ffmpeg a guardar se o troço acabou antes do fim do ficheiro.
     /// </summary>
-    private bool DecodeOne(int gen, Segment segment, ref FfmpegDecoder? open, CancellationToken ct)
+    private bool DecodeOne(int gen, Segment segment, ref FfmpegDecoder? open, Crossfade? fade, CancellationToken ct)
     {
         var decoder = open;
         open = null;
@@ -404,7 +419,8 @@ public sealed class AudioEngine : IDisposable
                 if (gain != 1f)
                     for (var i = 0; i < frames * 2; i++)
                         data[i] *= gain;
-                if (!Push(new Chunk(gen, data, frames) { Start = first ? segment : null }, ct))
+                var chunk = new Chunk(gen, data, frames) { Start = first ? segment : null };
+                if (!(fade is null ? Push(chunk, ct) : fade.Emit(chunk)))
                     return true;
                 first = false;
             }

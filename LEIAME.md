@@ -53,6 +53,9 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 - **Cada nível tem uma caixa onde se escreve o valor:** volume, balanço (`E30`, `C`, `D30`),
   pré-amplificador e cada banda. Enter aplica; vazio + Enter ou duplo clique repõe (volume 80,
   balanço ao centro, 0 dB). Setas e roda do rato andam um passo.
+- **Crossfade, se quiser** (desligado por omissão; de 2 a 8 s, no menu): de potência igual,
+  para o volume não afundar a meio. Nunca dentro de um disco nem entre as faixas de um `.cue`:
+  essas continuam sem silêncio.
 - **Folhas CUE:** um disco inteiro num só FLAC/APE/WAV com um `.cue` ao lado toca faixa a
   faixa (abra o `.cue`, ou junte a pasta), e cada faixa passa à seguinte sem silêncio nem
   estalido, porque o mesmo leitor continua por cima da fronteira.

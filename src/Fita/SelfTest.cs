@@ -40,6 +40,10 @@ internal static class SelfTest
         var eq = new EqSettings();
         EqPresets.Apply(eq, EqPresets.BuiltIn.First(p => p.Name == "Rock"));
         engine.ConfigureEq(eq);
+        // FITA_CROSSFADE=segundos: o mesmo teste com crossfade.
+        if (double.TryParse(Environment.GetEnvironmentVariable("FITA_CROSSFADE"), System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out var crossfade))
+            engine.CrossfadeSeconds = crossfade;
         engine.Play(items[0]);
 
         var clock = Stopwatch.StartNew();
