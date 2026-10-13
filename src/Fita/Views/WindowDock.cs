@@ -28,6 +28,9 @@ public sealed class WindowDock
         main.SizeChanged += (_, e) => FollowResize(main, e);
     }
 
+    /// <summary>Uma janela está a ser arrastada.</summary>
+    public bool Dragging => _moving is not null;
+
     public void Add(Window window)
     {
         _windows.Add(window);

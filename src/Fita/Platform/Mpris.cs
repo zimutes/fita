@@ -89,7 +89,9 @@ internal sealed class Mpris : IMediaSession, IMethodHandler
 
     public static Mpris? Create(Action<MediaCommand> onCommand, Action<double> onSeek)
     {
-        if (string.IsNullOrEmpty(Address.Session))
+        // Sem esta variável não há sessão de ambiente de trabalho (e o Address.Session ia
+        // procurar o endereço ao X11, com erros feios no registo).
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DBUS_SESSION_BUS_ADDRESS")) || string.IsNullOrEmpty(Address.Session))
             return null;
         var mpris = new Mpris(onCommand, onSeek);
         _ = mpris.ConnectAsync();

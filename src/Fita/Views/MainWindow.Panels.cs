@@ -63,6 +63,19 @@ public partial class MainWindow
         ApplyLayoutMode();
         // Depois de as janelas terem tamanho: no sítio gravado ou empilhadas por baixo do leitor.
         Dispatcher.UIThread.Post(PlacePanels, DispatcherPriority.Loaded);
+        // No X11 a posição do leitor só chega depois: nos primeiros segundos, volta-se a pôr.
+        var until = Environment.TickCount64 + 3000;
+        EventHandler<PixelPointEventArgs>? follow = null;
+        follow = (_, _) =>
+        {
+            if (Environment.TickCount64 > until || !Separate || _dock?.Dragging == true)
+            {
+                PositionChanged -= follow;
+                return;
+            }
+            PlacePanels();
+        };
+        PositionChanged += follow;
     }
 
     private PanelWindow MakePanelWindow(string titleKey, Control panel, Action close)
@@ -92,14 +105,23 @@ public partial class MainWindow
             return;
         bool OnScreen(double? x, double? y) =>
             x is { } px && y is { } py && Screens.All.Any(s => s.WorkingArea.Contains(new PixelPoint((int)px + 40, (int)py + 10)));
-        var main = WindowDock.RectOf(this);
-        var eqHeight = _eqWindow.IsVisible ? WindowDock.SizeOf(_eqWindow).Height : 0;
+        // As alturas tiram-se do conteúdo e não do tamanho das janelas: no X11 o tamanho novo do
+        // leitor (sem os painéis) ainda pode não ter chegado.
+        var width = Bounds.Width;
+        double Measured(Control c)
+        {
+            c.Measure(new Size(width, double.PositiveInfinity));
+            return c.DesiredSize.Height;
+        }
+        var scale = RenderScaling;
+        var mainBottom = Position.Y + (int)Math.Round((TitleBar.Height + Measured(Body)) * scale);
+        var eqHeight = _eqWindow.IsVisible ? (int)Math.Round((_eqWindow.TitleBarArea.Height + Measured(EqPanel)) * scale) : 0;
         _eqWindow.Position = OnScreen(_settings.EqWindowX, _settings.EqWindowY)
             ? new PixelPoint((int)_settings.EqWindowX!.Value, (int)_settings.EqWindowY!.Value)
-            : new PixelPoint(main.X, main.Bottom);
+            : new PixelPoint(Position.X, mainBottom);
         _plWindow.Position = OnScreen(_settings.PlWindowX, _settings.PlWindowY)
             ? new PixelPoint((int)_settings.PlWindowX!.Value, (int)_settings.PlWindowY!.Value)
-            : new PixelPoint(main.X, main.Bottom + eqHeight);
+            : new PixelPoint(Position.X, mainBottom + eqHeight);
     }
 
     private void LeaveSeparate()
