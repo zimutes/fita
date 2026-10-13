@@ -501,6 +501,7 @@ public partial class MainWindow : Window
             _shownState = snap.State;
             ShowTrackText();
             ShowCover(track);
+            ShowWaveform(track);
         }
 
         var position = snap.State == PlayState.Stopped ? (_settings.Resume ? _resumeAt : 0) : snap.Position;

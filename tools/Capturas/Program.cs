@@ -35,6 +35,7 @@ foreach (var theme in Catalog.All)
     Pump();
     window.DemoFrame(107);
     window.DemoCover(Capa());
+    window.DemoWaveform();
     Pump();
     var frame = window.CaptureRenderedFrame();
     var file = Path.Combine(output, $"{theme.Key}.png");

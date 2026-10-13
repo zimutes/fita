@@ -165,6 +165,7 @@ public static class Loc
         ["VisOff"] = ("Off", "Desligado"),
         ["LoudnessScan"] = ("Measure files without tags", "Medir os ficheiros sem etiquetas"),
         ["ShowCover"] = ("Album art in the display", "Capa no mostrador"),
+        ["ShowWaveform"] = ("Waveform in the seek bar", "Forma de onda na barra de posição"),
         ["AlwaysOnTop"] = ("Always on top", "Sempre à frente"),
         ["TaskbarProgress"] = ("Progress on the taskbar", "Progresso na barra de tarefas"),
         ["StopAfter"] = ("Stop after current (Ctrl+V)", "Parar depois desta (Ctrl+V)"),

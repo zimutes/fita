@@ -32,11 +32,14 @@ public sealed class LevelSlider : Control
     /// <summary>Barra de posição: mais fina e sem cursor enquanto não há faixa.</summary>
     public static readonly StyledProperty<bool> IsSeekBarProperty =
         AvaloniaProperty.Register<LevelSlider, bool>(nameof(IsSeekBar));
+    /// <summary>Na barra de posição: a forma de onda da faixa (0 a 1), desenhada no lugar da calha.</summary>
+    public static readonly StyledProperty<float[]?> WaveformProperty =
+        AvaloniaProperty.Register<LevelSlider, float[]?>(nameof(Waveform));
 
     static LevelSlider()
     {
         AffectsRender<LevelSlider>(MinimumProperty, MaximumProperty, ValueProperty, OriginProperty,
-            OrientationProperty, IsEnabledProperty, IsSeekBarProperty);
+            OrientationProperty, IsEnabledProperty, IsSeekBarProperty, WaveformProperty);
         FocusableProperty.OverrideDefaultValue<LevelSlider>(false);
     }
 
@@ -57,6 +60,7 @@ public sealed class LevelSlider : Control
     public double WheelStep { get => GetValue(WheelStepProperty); set => SetValue(WheelStepProperty, value); }
     public Orientation Orientation { get => GetValue(OrientationProperty); set => SetValue(OrientationProperty, value); }
     public bool IsSeekBar { get => GetValue(IsSeekBarProperty); set => SetValue(IsSeekBarProperty, value); }
+    public float[]? Waveform { get => GetValue(WaveformProperty); set => SetValue(WaveformProperty, value); }
 
     public bool IsDragging => _dragging;
 
@@ -197,6 +201,12 @@ public sealed class LevelSlider : Control
         var fill = new SolidColorBrush(t.SliderFill);
         var thumbPos = At(f * length, 0);
 
+        if (IsSeekBar && !Vertical && IsEnabled && Waveform is { Length: > 1 } wave)
+        {
+            DrawWaveform(context, t, wave, f, length, h);
+            return;
+        }
+
         switch (t.Slider)
         {
             case SliderLook.Pill:
@@ -302,6 +312,39 @@ public sealed class LevelSlider : Control
                 break;
             }
         }
+    }
+
+    /// <summary>
+    /// A forma de onda no lugar da calha, na mesma altura: o que já tocou na cor do enchimento,
+    /// o resto na da calha, e uma linha fina na posição. No tema de terminal as barras vão aos
+    /// degraus, como blocos.
+    /// </summary>
+    private void DrawWaveform(DrawingContext context, ThemeDef t, float[] wave, double f, double length, double h)
+    {
+        var blocky = t.Slider == SliderLook.Block;
+        var bar = blocky ? 3.0 : 2.0;
+        var gap = blocky ? 1.0 : 1.0;
+        var max = h - 4;
+        var mid = h / 2;
+        var played = new SolidColorBrush(t.SliderFill);
+        var rest = new SolidColorBrush(t.SliderTrack);
+        var head = Pad + f * length;
+        for (var x = 0.0; x + bar <= length + 0.01; x += bar + gap)
+        {
+            var i = (int)(x / length * wave.Length);
+            var to = Math.Max(i + 1, (int)((x + bar) / length * wave.Length));
+            var v = 0f;
+            for (var j = i; j < Math.Min(to, wave.Length); j++)
+                v = Math.Max(v, wave[j]);
+            var height = Math.Max(blocky ? 2 : 1.5, v * max);
+            if (blocky)
+                height = Math.Max(2, Math.Round(height / 2) * 2);
+            var r = new Rect(Pad + x, mid - height / 2, bar, height);
+            context.FillRectangle(Pad + x + bar / 2 <= head ? played : rest, r);
+        }
+        var thick = _hover || _dragging ? 3.0 : 2.0;
+        context.FillRectangle(new SolidColorBrush(_hover || _dragging ? t.Text : t.SliderThumb),
+            new Rect(head - thick / 2, 1, thick, h - 2));
     }
 
     /// <summary>Moldura de Windows 95: luz em cima/esquerda e sombra em baixo/direita (ou o contrário).</summary>

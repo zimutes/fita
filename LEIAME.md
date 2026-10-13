@@ -63,7 +63,8 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 - **Mostrador clássico:** tempo (clique para o que falta), título a correr, linha do formato,
   espectro ou osciloscópio (clique para trocar) e as luzinhas de estado: EQ, aleatório,
   repetir, ReplayGain, parar depois desta, limitador. A capa (a do ficheiro, ou um `cover.jpg`
-  / `folder.jpg` ao lado) fica esbatida por trás do texto, para a janela não crescer.
+  / `folder.jpg` ao lado) fica esbatida por trás do texto, para a janela não crescer, e a barra
+  de posição desenha a forma de onda da faixa, na mesma altura de uma barra simples.
 - **Seis temas**, tirados dos seis temas do painel do Jazmin (o CMS do autor): Purple Haze,
   1995 Calling, Midnight OLED, Boutique Gold, Toxic Terminal e Oceanic Flow. Cada um muda mais
   do que as cores: fontes, forma dos botões, relevo ou brilho, o desenho dos controlos e do

@@ -30,6 +30,8 @@ public sealed class AppSettings
     public VisMode Vis { get; set; } = VisMode.Spectrum;
     /// <summary>A capa por trás do mostrador.</summary>
     public bool ShowCover { get; set; } = true;
+    /// <summary>A forma de onda da faixa na barra de posição.</summary>
+    public bool ShowWaveform { get; set; } = true;
     public bool TimeRemaining { get; set; }
     public ReplayGainMode ReplayGain { get; set; }
     /// <summary>Medir (EBU R128) as faixas que não trazem ReplayGain.</summary>

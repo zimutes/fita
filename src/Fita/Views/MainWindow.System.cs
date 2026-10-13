@@ -256,6 +256,69 @@ public partial class MainWindow
         CoverImage.IsVisible = on && CoverImage.Source is not null;
     }
 
+    // ── Forma de onda ─────────────────────────────────────────────────────────
+
+    private Track? _waveTrack;
+    private CancellationTokenSource? _waveCancel;
+    /// <summary>As últimas formas de onda calculadas (voltar atrás na lista não as recalcula).</summary>
+    private readonly Dictionary<string, float[]> _waveCache = [];
+    private readonly Queue<string> _waveOrder = new();
+
+    /// <summary>A faixa mostrada mudou: calcula a forma de onda dela em segundo plano.</summary>
+    private void ShowWaveform(Track? track)
+    {
+        if (track == _waveTrack)
+            return;
+        _waveTrack = track;
+        _waveCancel?.Cancel();
+        _waveCancel = null;
+        Seek.Waveform = null;
+        if (track is null || !_settings.ShowWaveform || _demo || _ffmpeg is not { } ffmpeg)
+            return;
+        if (_waveCache.TryGetValue(track.Key, out var cached))
+        {
+            Seek.Waveform = cached;
+            return;
+        }
+        var cancel = _waveCancel = new CancellationTokenSource();
+        var (path, start, end, key) = (track.Path, track.Start, track.End, track.Key);
+        _ = Task.Run(() => Waveform.Compute(ffmpeg, path, start, end, cancel.Token)).ContinueWith(t =>
+        {
+            if (!t.IsCompletedSuccessfully || t.Result is not { } wave)
+                return;
+            _waveCache[key] = wave;
+            _waveOrder.Enqueue(key);
+            while (_waveOrder.Count > 64)
+                _waveCache.Remove(_waveOrder.Dequeue());
+            if (!cancel.IsCancellationRequested && track == _waveTrack)
+                Seek.Waveform = wave;
+        }, TaskScheduler.FromCurrentSynchronizationContext());
+    }
+
+    private void SetShowWaveform(bool on)
+    {
+        _settings.ShowWaveform = on;
+        var track = _waveTrack;
+        _waveTrack = null;
+        ShowWaveform(on ? track : null);
+        _waveTrack = track;
+    }
+
+    /// <summary>Para as capturas: uma forma de onda inventada, sem ler ficheiros.</summary>
+    public void DemoWaveform()
+    {
+        var rnd = new Random(3);
+        var wave = new float[Waveform.Bins];
+        for (var i = 0; i < wave.Length; i++)
+        {
+            var x = i / (double)wave.Length;
+            // Entrada calma, corpo mais forte, fim a desvanecer.
+            var shape = Math.Min(1, x * 6) * (0.55 + 0.35 * Math.Sin(x * 9)) * Math.Min(1, (1 - x) * 8);
+            wave[i] = (float)Math.Clamp(shape * (0.75 + 0.25 * rnd.NextDouble()), 0, 1);
+        }
+        Seek.Waveform = wave;
+    }
+
     /// <summary>Para as capturas: uma capa desenhada, sem ler ficheiros.</summary>
     public void DemoCover(Bitmap cover) => SetCoverImage(cover);
 

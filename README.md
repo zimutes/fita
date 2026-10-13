@@ -66,7 +66,8 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
 - **Classic display:** time (click for remaining), scrolling title, format line, spectrum or
   oscilloscope (click to switch), and the little status lights: EQ, shuffle, repeat,
   ReplayGain, stop-after-current, limiter. The album art (from the file, or a `cover.jpg` /
-  `folder.jpg` next to it) sits faded behind the text, so the window doesn't grow.
+  `folder.jpg` next to it) sits faded behind the text, so the window doesn't grow, and the
+  seek bar draws the track's waveform, in the same height as a plain bar.
 - **Six themes**, taken from the six themes of the panel of Jazmin (the author's CMS): Purple
   Haze, 1995 Calling, Midnight OLED, Boutique Gold, Toxic Terminal and Oceanic Flow. Each one
   changes more than colours: fonts, button shapes, relief or glow, how the sliders and the
