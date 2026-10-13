@@ -50,6 +50,8 @@ public partial class MainWindow
         vis.Items.Add(Radio(Loc.T("VisSpectrum"), _settings.Vis == VisMode.Spectrum, () => SetVis(VisMode.Spectrum)));
         vis.Items.Add(Radio(Loc.T("VisScope"), _settings.Vis == VisMode.Scope, () => SetVis(VisMode.Scope)));
         vis.Items.Add(Radio(Loc.T("VisOff"), _settings.Vis == VisMode.Off, () => SetVis(VisMode.Off)));
+        vis.Items.Add(new Separator());
+        vis.Items.Add(Check(Loc.T("ShowCover"), _settings.ShowCover, () => SetShowCover(!_settings.ShowCover)));
         menu.Items.Add(vis);
 
         var rg = new MenuItem { Header = Loc.T("ReplayGain") };

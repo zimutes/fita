@@ -58,37 +58,49 @@
           <StackPanel Spacing="8">
 
             <!-- Mostrador -->
-            <Border Name="Lcd" Classes="inset" Height="102" Padding="12,8,12,8" Background="{DynamicResource InsetBg}">
-              <Grid ColumnDefinitions="152,14,*" RowDefinitions="Auto,*">
-                <StackPanel Orientation="Horizontal" Spacing="9" Name="TimeArea" Background="Transparent"
-                            ToolTip.Tip="{DynamicResource L.TimeTip}" Cursor="Hand">
-                  <ctl:Glyph Name="StateGlyph" Kind="Stop" Width="11" Height="11" Foreground="{DynamicResource Lcd}"
-                             VerticalAlignment="Center" Effect="{DynamicResource LcdEffect}" />
-                  <TextBlock Name="TimeText" Text="00:00" Foreground="{DynamicResource Lcd}"
-                             FontFamily="{DynamicResource FontTime}" FontWeight="{DynamicResource TimeWeight}"
-                             FontSize="{DynamicResource TimeSize}" VerticalAlignment="Center"
-                             Effect="{DynamicResource LcdEffect}" />
-                </StackPanel>
-                <ctl:Visualizer Name="Vis" Grid.Row="1" Margin="0,6,0,0" Cursor="Hand" ToolTip.Tip="{DynamicResource L.VisTip}" />
-
-                <Grid Grid.Column="2" Grid.RowSpan="2" RowDefinitions="Auto,Auto,*,Auto">
-                  <ctl:Marquee Name="TitleMarquee" Height="22" FontSize="15" FontWeight="SemiBold"
-                               FontFamily="{DynamicResource FontSans}" Foreground="{DynamicResource Lcd}"
+            <Border Name="Lcd" Classes="inset" Height="102" Padding="12,8,12,8" Background="{DynamicResource InsetBg}" ClipToBounds="True">
+              <Panel>
+                <!-- Capa: por trás do texto, encostada à direita e a desvanecer para a esquerda -->
+                <Image Name="CoverImage" IsVisible="False" IsHitTestVisible="False" HorizontalAlignment="Right"
+                       Width="150" Margin="0,-8,-12,-8" Stretch="UniformToFill" Opacity="0.4">
+                  <Image.OpacityMask>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                      <GradientStop Offset="0" Color="Transparent" />
+                      <GradientStop Offset="0.75" Color="Black" />
+                    </LinearGradientBrush>
+                  </Image.OpacityMask>
+                </Image>
+                <Grid ColumnDefinitions="152,14,*" RowDefinitions="Auto,*">
+                  <StackPanel Orientation="Horizontal" Spacing="9" Name="TimeArea" Background="Transparent"
+                              ToolTip.Tip="{DynamicResource L.TimeTip}" Cursor="Hand">
+                    <ctl:Glyph Name="StateGlyph" Kind="Stop" Width="11" Height="11" Foreground="{DynamicResource Lcd}"
+                               VerticalAlignment="Center" Effect="{DynamicResource LcdEffect}" />
+                    <TextBlock Name="TimeText" Text="00:00" Foreground="{DynamicResource Lcd}"
+                               FontFamily="{DynamicResource FontTime}" FontWeight="{DynamicResource TimeWeight}"
+                               FontSize="{DynamicResource TimeSize}" VerticalAlignment="Center"
                                Effect="{DynamicResource LcdEffect}" />
-                  <TextBlock Name="InfoText" Grid.Row="1" Classes="lcd" FontSize="10.5" Foreground="{DynamicResource LcdDim}"
-                             TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
-                  <TextBlock Name="StatusText" Grid.Row="2" Classes="lcd" FontSize="10.5" Foreground="{DynamicResource LcdDim}"
-                             TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Cursor="Hand" />
-                  <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10">
-                    <TextBlock Name="IndEq" Classes="indicator" Text="EQ" />
-                    <TextBlock Name="IndShuffle" Classes="indicator" Text="SHUF" />
-                    <TextBlock Name="IndRepeat" Classes="indicator" Text="REP" />
-                    <TextBlock Name="IndRg" Classes="indicator" Text="RG" />
-                    <TextBlock Name="IndStopAfter" Classes="indicator alert" Text="STOP" />
-                    <TextBlock Name="IndLimit" Classes="indicator alert" Text="{DynamicResource L.Limit}" ToolTip.Tip="{DynamicResource L.LimitTip}" />
                   </StackPanel>
+                  <ctl:Visualizer Name="Vis" Grid.Row="1" Margin="0,6,0,0" Cursor="Hand" ToolTip.Tip="{DynamicResource L.VisTip}" />
+
+                  <Grid Grid.Column="2" Grid.RowSpan="2" RowDefinitions="Auto,Auto,*,Auto">
+                    <ctl:Marquee Name="TitleMarquee" Height="22" FontSize="15" FontWeight="SemiBold"
+                                 FontFamily="{DynamicResource FontSans}" Foreground="{DynamicResource Lcd}"
+                                 Effect="{DynamicResource LcdEffect}" />
+                    <TextBlock Name="InfoText" Grid.Row="1" Classes="lcd" FontSize="10.5" Foreground="{DynamicResource LcdDim}"
+                               TextTrimming="CharacterEllipsis" Margin="0,3,0,0" />
+                    <TextBlock Name="StatusText" Grid.Row="2" Classes="lcd" FontSize="10.5" Foreground="{DynamicResource LcdDim}"
+                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Cursor="Hand" />
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10">
+                      <TextBlock Name="IndEq" Classes="indicator" Text="EQ" />
+                      <TextBlock Name="IndShuffle" Classes="indicator" Text="SHUF" />
+                      <TextBlock Name="IndRepeat" Classes="indicator" Text="REP" />
+                      <TextBlock Name="IndRg" Classes="indicator" Text="RG" />
+                      <TextBlock Name="IndStopAfter" Classes="indicator alert" Text="STOP" />
+                      <TextBlock Name="IndLimit" Classes="indicator alert" Text="{DynamicResource L.Limit}" ToolTip.Tip="{DynamicResource L.LimitTip}" />
+                    </StackPanel>
+                  </Grid>
                 </Grid>
-              </Grid>
+              </Panel>
             </Border>
 
             <!-- Posição -->

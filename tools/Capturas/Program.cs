@@ -34,6 +34,7 @@ foreach (var theme in Catalog.All)
     window.Show();
     Pump();
     window.DemoFrame(107);
+    window.DemoCover(Capa());
     Pump();
     var frame = window.CaptureRenderedFrame();
     var file = Path.Combine(output, $"{theme.Key}.png");
@@ -41,6 +42,30 @@ foreach (var theme in Catalog.All)
     Console.WriteLine($"{theme.Name}: {file} ({window.Bounds.Width}×{window.Bounds.Height})");
     window.Close();
     Pump();
+}
+
+// Capa de exemplo desenhada aqui (sem imagens de terceiros): uma lua, para o Clair de lune.
+static Avalonia.Media.Imaging.Bitmap Capa()
+{
+    var capa = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(220, 220));
+    using (var dc = capa.CreateDrawingContext())
+    {
+        var ceu = new Avalonia.Media.LinearGradientBrush
+        {
+            StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
+            EndPoint = new RelativePoint(0, 1, RelativeUnit.Relative),
+            GradientStops = { new(Avalonia.Media.Color.Parse("#1b2a4a"), 0), new(Avalonia.Media.Color.Parse("#4a3a6a"), 1) },
+        };
+        dc.FillRectangle(ceu, new Rect(0, 0, 220, 220));
+        var luz = new Avalonia.Media.RadialGradientBrush
+        {
+            GradientStops = { new(Avalonia.Media.Color.Parse("#80fff4d6"), 0), new(Avalonia.Media.Colors.Transparent, 1) },
+        };
+        dc.DrawEllipse(luz, null, new Point(140, 80), 80, 80);
+        dc.DrawEllipse(new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#fff4d6")), null, new Point(140, 80), 34, 34);
+        dc.FillRectangle(new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#0f1830")), new Rect(0, 175, 220, 45));
+    }
+    return capa;
 }
 
 static void Pump()

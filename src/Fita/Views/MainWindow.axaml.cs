@@ -476,6 +476,7 @@ public partial class MainWindow : Window
                 track.PropertyChanged += ShownTrackChanged;
             _shownState = snap.State;
             ShowTrackText();
+            ShowCover(track);
         }
 
         var position = snap.State == PlayState.Stopped ? (_settings.Resume ? _resumeAt : 0) : snap.Position;
@@ -548,7 +549,10 @@ public partial class MainWindow : Window
     private void ShownTrackChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(Track.Display) or nameof(Track.Info) or nameof(Track.Duration) or nameof(Track.Album))
+        {
             ShowTrackText();
+            UpdateSessionTrack();
+        }
     }
 
     private void ShowTrackText()
@@ -613,7 +617,7 @@ public partial class MainWindow : Window
             _lastError = null;
             EnsureFrameLoop();
         }
-        MediaKeysSync(state);
+        SyncSystem(_engine.Snapshot());
         // As definições gravam-se também a meio (a cada ~10 s, se mudaram): se a app for fechada
         // à força, não se perde o tema, o volume nem o EQ.
         if (_blink % 40 == 0 && !_demo)
@@ -660,7 +664,7 @@ public partial class MainWindow : Window
         _slowTimer.Stop();
         _engine.Dispose();
         _tags.Dispose();
-        MediaKeysStop();
+        StopSystemIntegration();
     }
 
     private void SaveAll()

@@ -59,7 +59,8 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
   da lista, da faixa e de onde parou.
 - **Mostrador clássico:** tempo (clique para o que falta), título a correr, linha do formato,
   espectro ou osciloscópio (clique para trocar) e as luzinhas de estado: EQ, aleatório,
-  repetir, ReplayGain, parar depois desta, limitador.
+  repetir, ReplayGain, parar depois desta, limitador. A capa (a do ficheiro, ou um `cover.jpg`
+  / `folder.jpg` ao lado) fica esbatida por trás do texto, para a janela não crescer.
 - **Seis temas**, tirados dos seis temas do painel do Jazmin (o CMS do autor): Purple Haze,
   1995 Calling, Midnight OLED, Boutique Gold, Toxic Terminal e Oceanic Flow. Cada um muda mais
   do que as cores: fontes, forma dos botões, relevo ou brilho, o desenho dos controlos e do
@@ -67,9 +68,11 @@ enquanto toca e tem um equalizador que dá mesmo para afinar. Era isso o Winamp.
 - **Modo compacto** (o antigo *windowshade*): o leitor inteiro na barra de título.
 - **ReplayGain** (por faixa ou por álbum), escolha da saída de som, sempre à frente, parar
   depois desta.
-- **Teclado primeiro**, com as teclas do Winamp (abaixo). As teclas multimédia funcionam com a
-  janela em segundo plano, mas só enquanto a Fita está a tocar ou em pausa: parado, voltam
-  para o navegador.
+- **Parte do sistema:** a Fita aparece no painel multimédia do Windows e no ecrã de bloqueio
+  (no Linux, por MPRIS: GNOME, KDE, `playerctl`) com título, artista, capa e posição, e recebe
+  por aí as teclas multimédia e os botões dos auscultadores, mesmo com a janela em segundo
+  plano. As teclas vão para a última app que tocou, como com qualquer outro leitor.
+- **Teclado primeiro**, com as teclas do Winamp (abaixo).
 - **Uma só janela:** abrir ficheiros com a Fita já aberta junta-os a ela. No Windows há
   *Abrir com* e, no botão direito das pastas e dos ficheiros de áudio, *Tocar na Fita* e
   *Juntar à lista da Fita*, com quantos se quiser escolhidos (entram de uma vez, pela ordem

@@ -62,16 +62,19 @@ plays and has an equalizer you can actually tune. That was Winamp. Fita (Portugu
   missing files; save as M3U8 or PLS. It remembers the list, the track and where you stopped.
 - **Classic display:** time (click for remaining), scrolling title, format line, spectrum or
   oscilloscope (click to switch), and the little status lights: EQ, shuffle, repeat,
-  ReplayGain, stop-after-current, limiter.
+  ReplayGain, stop-after-current, limiter. The album art (from the file, or a `cover.jpg` /
+  `folder.jpg` next to it) sits faded behind the text, so the window doesn't grow.
 - **Six themes**, taken from the six themes of the panel of Jazmin (the author's CMS): Purple
   Haze, 1995 Calling, Midnight OLED, Boutique Gold, Toxic Terminal and Oceanic Flow. Each one
   changes more than colours: fonts, button shapes, relief or glow, how the sliders and the
   spectrum are drawn, even whether things animate.
 - **Compact mode** (the old *windowshade*): the whole player in the title bar.
 - **ReplayGain** (track or album), output device choice, always on top, stop after current.
-- **Keyboard first**, with Winamp's keys (below), and the keyboard's media keys work even
-  with the window in the background, but only while Fita is playing or paused, so they
-  go back to your browser when it is stopped.
+- **Part of the system:** Fita shows up in the Windows media flyout and on the lock screen
+  (on Linux, through MPRIS: GNOME, KDE, `playerctl`) with title, artist, album art and
+  position, and takes the media keys and headphone buttons from there, even with the window
+  in the background. The keys go to whichever app played last, like with any other player.
+- **Keyboard first**, with Winamp's keys (below).
 - **One instance:** opening files with Fita already open adds them to it. On Windows,
   *Open with*, and right-click on folders and audio files gives *Play in Fita* and
   *Add to Fita playlist*, with any number of items selected (they go in as one batch, in

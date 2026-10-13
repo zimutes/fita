@@ -160,6 +160,7 @@ public static class Loc
         ["VisSpectrum"] = ("Spectrum", "Espectro"),
         ["VisScope"] = ("Oscilloscope", "Osciloscópio"),
         ["VisOff"] = ("Off", "Desligado"),
+        ["ShowCover"] = ("Album art in the display", "Capa no mostrador"),
         ["AlwaysOnTop"] = ("Always on top", "Sempre à frente"),
         ["StopAfter"] = ("Stop after current (Ctrl+V)", "Parar depois desta (Ctrl+V)"),
         ["ResumeOption"] = ("Resume where I left off", "Continuar onde fiquei"),

@@ -16,7 +16,6 @@ public partial class MainWindow
     private bool _sizing;
     /// <summary>A janela já tem a altura das definições: a partir daqui, o que se vê é do utilizador.</summary>
     private bool _layoutReady;
-    private WindowsMediaKeys? _mediaKeys;
 
     private void SetupWindow()
     {
@@ -104,8 +103,7 @@ public partial class MainWindow
                 _layoutReady = true;
             }, DispatcherPriority.Loaded);
             ApplyWindowCorners();
-            if (OperatingSystem.IsWindows() && !_demo)
-                _mediaKeys = WindowsMediaKeys.Start(key => Dispatcher.UIThread.Post(() => OnMediaKey(key)));
+            StartSystemIntegration();
         };
     }
 
@@ -281,25 +279,6 @@ public partial class MainWindow
             default: return false;
         }
     }
-
-    private void OnMediaKey(WindowsMediaKeys.MediaKey key)
-    {
-        switch (key)
-        {
-            case WindowsMediaKeys.MediaKey.PlayPause: PauseOrPlay(); break;
-            case WindowsMediaKeys.MediaKey.Next: Next(); break;
-            case WindowsMediaKeys.MediaKey.Previous: Previous(); break;
-            case WindowsMediaKeys.MediaKey.Stop: Stop(); break;
-        }
-    }
-
-    /// <summary>
-    /// As teclas multimédia globais só ficam presas enquanto há música (a tocar ou em pausa):
-    /// com a Fita parada, voltam para o navegador ou para outra app.
-    /// </summary>
-    private void MediaKeysSync(PlayState state) => _mediaKeys?.SetActive(state != PlayState.Stopped);
-
-    private void MediaKeysStop() => _mediaKeys?.Dispose();
 
     private void PauseOrPlay()
     {

@@ -26,6 +26,8 @@ public sealed class AppSettings
     public bool Compact { get; set; }
     public bool AlwaysOnTop { get; set; }
     public VisMode Vis { get; set; } = VisMode.Spectrum;
+    /// <summary>A capa por trás do mostrador.</summary>
+    public bool ShowCover { get; set; } = true;
     public bool TimeRemaining { get; set; }
     public ReplayGainMode ReplayGain { get; set; }
     /// <summary>Caminho escolhido à mão para o ffmpeg (vazio: procurar sozinho).</summary>
